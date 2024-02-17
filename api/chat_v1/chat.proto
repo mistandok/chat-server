@@ -17,7 +17,6 @@ message CreateRequest {
   repeated string usernames = 1;
 }
 
-
 message CreateResponse {
   int64 id = 1;
 }

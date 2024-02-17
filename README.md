@@ -1,2 +1,3 @@
-# auth
-go auth microservice
+# chat-server
+
+chat-server microservice
