@@ -3,13 +3,14 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mistandok/chat-server/internal/repositories"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"strconv"
 )
 
 // ChatRepo user repo for operations with chat.
@@ -70,8 +71,9 @@ func (c *ChatRepo) Delete(ctx context.Context, in *repositories.ChatDeleteIn) er
 	return nil
 }
 
+// SendMessage save message in db
 func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessageIn) error {
-	userLinkedWithChat, err := c.isUserInChat(ctx, in.ToChatId, in.FromUserID)
+	userLinkedWithChat, err := c.isUserInChat(ctx, in.ToChatID, in.FromUserID)
 	if err != nil {
 		return errors.Errorf("ошибка во время проверки наличия пользователя в чате: %v", err)
 	}
@@ -87,7 +89,7 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 
 	args := pgx.NamedArgs{
 		"fromUserID": in.FromUserID,
-		"toChatID":   in.ToChatId,
+		"toChatID":   in.ToChatID,
 		"message":    in.Message,
 		"sended":     in.SendTime,
 	}

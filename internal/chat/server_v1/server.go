@@ -3,6 +3,7 @@ package server_v1
 import (
 	"context"
 	"fmt"
+
 	"github.com/mistandok/chat-server/internal/repositories"
 	"github.com/mistandok/chat-server/pkg/chat_v1"
 	"github.com/pkg/errors"
@@ -12,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// ChatRepo interface for work with chat.
 type ChatRepo interface {
 	Create(context.Context, *repositories.ChatCreateIn) (*repositories.ChatCreateOut, error)
 	Delete(context.Context, *repositories.ChatDeleteIn) error
@@ -66,7 +68,7 @@ func (s *Server) SendMessage(ctx context.Context, request *chat_v1.SendMessageRe
 	err := s.chatRepo.SendMessage(ctx, &repositories.SendMessageIn{
 		FromUserID: request.From,
 		Message:    request.Text,
-		ToChatId:   request.ToChatId,
+		ToChatID:   request.ToChatId,
 		SendTime:   request.Timestamp.AsTime(),
 	})
 	if err != nil {

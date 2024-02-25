@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
+	"net"
+	"os"
+
 	"github.com/mistandok/chat-server/internal/chat/server_v1"
 	"github.com/mistandok/chat-server/internal/config"
 	"github.com/mistandok/chat-server/internal/config/env"
@@ -11,9 +15,6 @@ import (
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
-	"os"
 )
 
 var configPath string

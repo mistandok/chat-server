@@ -24,7 +24,7 @@ type ChatDeleteIn struct {
 type SendMessageIn struct {
 	FromUserID int64     `json:"from_user_id"`
 	Message    string    `json:"message"`
-	ToChatId   int64     `json:"to_chat_id"`
+	ToChatID   int64     `json:"to_chat_id"`
 	SendTime   time.Time `json:"send_time"`
 }
 
