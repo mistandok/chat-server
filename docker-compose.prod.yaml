@@ -1,13 +1,13 @@
 version: '3'
 
 volumes:
-  postgres_volume:
+  chat_postgres_volume:
 
 services:
   storage:
     image: postgres:16.1
     volumes:
-      - postgres_volume:/var/lib/postgresql/data
+      - chat_postgres_volume:/var/lib/postgresql/data
     env_file:
       - deploy/env/.env.prod
     expose:
@@ -25,10 +25,10 @@ services:
     environment:
       PG_HOST: storage
 
-  auth_service:
+  chat_service:
     build:
       context: .
-      dockerfile: deploy/dockerfiles/auth.Dockerfile
+      dockerfile: deploy/dockerfiles/chat.Dockerfile
     env_file:
       - deploy/env/.env.prod
     depends_on:

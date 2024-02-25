@@ -14,4 +14,4 @@ wait_database()
 }
 
 wait_database $PG_HOST $PG_PORT
-./auth_service -config=./deploy/env/.env.prod
+./chat_service -config=./deploy/env/.env.prod

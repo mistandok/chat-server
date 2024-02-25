@@ -1,13 +1,13 @@
 version: '3'
 
 volumes:
-  postgres_volume:
+  chat_postgres_volume:
 
 services:
   storage:
     image: postgres:16.1
     volumes:
-      - postgres_volume:/var/lib/postgresql/data
+      - chat_postgres_volume:/var/lib/postgresql/data
     env_file:
       - deploy/env/.env.local
     ports:
