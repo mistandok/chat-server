@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("ошибка при получении конфига DB: %v", err)
 	}
 
-	_, connCloser := postgresql.MustInitPgConnection(ctx, *pgConfig)
+	pool, connCloser := postgresql.MustInitPgConnection(ctx, *pgConfig)
 	defer connCloser()
 
 	listenConfig := net.ListenConfig{}
@@ -57,7 +57,8 @@ func main() {
 
 	logger := setupZeroLog(logConfig)
 
-	chatServer := server_v1.NewServer(logger)
+	chatRepo := postgresql.NewChatRepo(pool, logger)
+	chatServer := server_v1.NewServer(logger, chatRepo)
 
 	server := grpc.NewServer()
 	reflection.Register(server)

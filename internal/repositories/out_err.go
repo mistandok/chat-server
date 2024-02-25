@@ -3,11 +3,13 @@ package repositories
 import "github.com/pkg/errors"
 
 const (
-	errMsgUserNotFound = "пользователь не найден"
-	errMsgEmailIsTaken = "пользователь с таким email уже существует"
+	errMsgChatNotFound     = "чата не существует"
+	errMsgUserNotFound     = "пользователя не существует"
+	errMsgUserNotInTheChat = "пользователь не состоит в чате"
 )
 
 var (
-	ErrUserNotFound = errors.New(errMsgUserNotFound) // ErrUserNotFound сигнальная ошибка в случае отсутствия пользователя.
-	ErrEmailIsTaken = errors.New(errMsgEmailIsTaken) // ErrEmailIsTaken сигнальная ошибка в случае дублирования email.
+	ErrUserNotFound     = errors.New(errMsgUserNotFound)     // ErrUserNotFound сигнальная ошибка в случае отсутствия пользователя.
+	ErrChatNotFound     = errors.New(errMsgChatNotFound)     // ErrChatNotFound сигнальная ошибка в случае отсутствия чата.
+	ErrUserNotInTheChat = errors.New(errMsgUserNotInTheChat) // ErrUserNotInTheChat сигнальная ошибка в случае отсутствия пользователя в чате.
 )
