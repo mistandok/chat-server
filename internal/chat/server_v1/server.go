@@ -1,4 +1,4 @@
-package chat
+package server_v1
 
 import (
 	"context"
