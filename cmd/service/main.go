@@ -20,7 +20,7 @@ import (
 var configPath string
 
 func init() {
-	flag.StringVar(&configPath, "config", ".env", "path to config file")
+	flag.StringVar(&configPath, "config", "deploy/env/.env.local", "path to config file")
 	flag.Parse()
 }
 

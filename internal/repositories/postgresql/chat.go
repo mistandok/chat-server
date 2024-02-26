@@ -12,6 +12,23 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const (
+	chatTable     = "chat"
+	chatUserTable = "chat_user"
+	userTable     = "user"
+	messageTable  = "message"
+
+	userIdColumn     = "user_id"
+	chatIdColumn     = "chat_id"
+	fromUserIdColumn = "from_user_id"
+	messageColumn    = "message"
+	sentAtColumn     = "sent_at"
+	idColumn         = "id"
+
+	messageChatIdFKConstraint     = "fk_chat_id"
+	messageFromUserIdFKConstraint = "fk_from_user_id"
+)
+
 // ChatRepo user repo for operations with chat.
 type ChatRepo struct {
 	pool   *pgxpool.Pool
@@ -56,10 +73,11 @@ func (c *ChatRepo) Create(ctx context.Context, in *repositories.ChatCreateIn) (*
 
 // Delete delete chat from db.
 func (c *ChatRepo) Delete(ctx context.Context, in *repositories.ChatDeleteIn) error {
-	query := `DELETE FROM chat WHERE id = @id`
+	queryFormat := `DELETE FROM %s WHERE %s = @%s`
+	query := fmt.Sprintf(queryFormat, chatTable, idColumn, idColumn)
 
 	args := pgx.NamedArgs{
-		"id": in.ID,
+		idColumn: in.ID,
 	}
 
 	_, err := c.pool.Exec(ctx, query, args)
@@ -78,16 +96,22 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 		return repositories.ErrUserNotInTheChat
 	}
 
-	query := `
-		INSERT INTO message (from_user_id, chat_id, message, sended)
-		VALUES (@fromUserID, @toChatID, @message, @sended)
+	queryFormat := `
+		INSERT INTO %s (%s, %s, %s, %s)
+		VALUES (@%s, @%s, @%s, @%s)
     `
+	query := fmt.Sprintf(
+		queryFormat,
+		messageTable,
+		fromUserIdColumn, chatIdColumn, messageColumn, sentAtColumn,
+		fromUserIdColumn, chatIdColumn, messageColumn, sentAtColumn,
+	)
 
 	args := pgx.NamedArgs{
-		"fromUserID": in.FromUserID,
-		"toChatID":   in.ToChatID,
-		"message":    in.Message,
-		"sended":     in.SendTime,
+		fromUserIdColumn: in.FromUserID,
+		chatIdColumn:     in.ToChatID,
+		messageColumn:    in.Message,
+		sentAtColumn:     in.SendTime,
 	}
 
 	_, err = c.pool.Exec(ctx, query, args)
@@ -95,9 +119,9 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			switch {
-			case pgErr.ConstraintName == "fk_chat_id":
+			case pgErr.ConstraintName == messageChatIdFKConstraint:
 				return repositories.ErrChatNotFound
-			case pgErr.ConstraintName == "fk_from_user_id":
+			case pgErr.ConstraintName == messageFromUserIdFKConstraint:
 				return repositories.ErrUserNotFound
 			}
 		}
@@ -216,19 +240,22 @@ func (c *ChatRepo) linkChatAndUsers(ctx context.Context, tx pgx.Tx, chatID int64
 }
 
 func (c *ChatRepo) isUserInChat(ctx context.Context, chatID int64, userID int64) (bool, error) {
-	query := `
-		SELECT
-			CASE 
-				WHEN EXISTS (
-					SELECT TRUE FROM chat_user WHERE chat_id = @chatID AND user_id = @userID
-				) THEN TRUE
-				ELSE FALSE
-			END as "exists"
-	`
+	queryFormat := `
+		SELECT TRUE
+		FROM %s
+		WHERE %s = @%s AND %s = @%s
+    `
+	query := fmt.Sprintf(
+		queryFormat,
+		chatUserTable,
+		chatIdColumn, chatIdColumn, userIdColumn, userIdColumn,
+	)
+
+	c.logger.Info().Msg(query)
 
 	args := pgx.NamedArgs{
-		"chatID": chatID,
-		"userID": userID,
+		chatIdColumn: chatID,
+		userIdColumn: userID,
 	}
 
 	rows, err := c.pool.Query(ctx, query, args)
@@ -237,13 +264,13 @@ func (c *ChatRepo) isUserInChat(ctx context.Context, chatID int64, userID int64)
 	}
 	defer rows.Close()
 
-	type BoolStruct struct {
-		Exists bool
-	}
-	answer, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[BoolStruct])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[bool])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
 		return false, err
 	}
 
-	return answer.Exists, nil
+	return true, nil
 }
