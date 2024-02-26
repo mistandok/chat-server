@@ -3,6 +3,7 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -151,7 +152,8 @@ func (c *ChatRepo) createChatForUsers(ctx context.Context, tx pgx.Tx, userIDs []
 }
 
 func (c *ChatRepo) createChat(ctx context.Context, tx pgx.Tx) (int64, error) {
-	query := `INSERT INTO chat DEFAULT VALUES RETURNING id`
+	queryFormat := `INSERT INTO %s DEFAULT VALUES RETURNING id`
+	query := fmt.Sprintf(queryFormat, chatTable)
 
 	rows, err := tx.Query(ctx, query)
 	if err != nil {
@@ -159,12 +161,12 @@ func (c *ChatRepo) createChat(ctx context.Context, tx pgx.Tx) (int64, error) {
 	}
 	defer rows.Close()
 
-	chat, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[repositories.ChatCreateOut])
+	chatID, err := pgx.CollectOneRow(rows, pgx.RowTo[int64])
 	if err != nil {
 		return 0, err
 	}
 
-	return chat.ID, nil
+	return chatID, nil
 }
 
 func (c *ChatRepo) createUsers(ctx context.Context, tx pgx.Tx, userIDs []int64) error {
@@ -173,46 +175,25 @@ func (c *ChatRepo) createUsers(ctx context.Context, tx pgx.Tx, userIDs []int64) 
 		return nil
 	}
 
-	tempTableName, err := c.createAndFillTempUserTable(ctx, tx, userIDs)
-	if err != nil {
-		return errors.Errorf("ошибка во время создания временной таблицы пользователей: %v", err)
+	var strUserIDs = make([]string, 0, countUsers)
+	for _, userID := range userIDs {
+		strUserIDs = append(strUserIDs, fmt.Sprintf("(%d)", userID))
 	}
 
-	query := fmt.Sprintf(`INSERT INTO "user" SELECT * FROM %s ON CONFLICT DO NOTHING`, tempTableName)
+	values := strings.Join(strUserIDs, ",")
 
-	_, err = tx.Exec(ctx, query)
+	queryFormat := `
+		INSERT INTO "%s" (%s)
+		VALUES %s
+		ON CONFLICT DO NOTHING
+	`
+	query := fmt.Sprintf(queryFormat, userTable, idColumn, values)
+	_, err := tx.Exec(ctx, query)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (c *ChatRepo) createAndFillTempUserTable(ctx context.Context, tx pgx.Tx, userIDs []int64) (string, error) {
-	tableName := "_temp_upsert_user"
-	query := fmt.Sprintf(`CREATE TEMPORARY TABLE %s (LIKE "user" INCLUDING ALL) ON COMMIT DROP`, tableName)
-
-	_, err := tx.Exec(ctx, query)
-	if err != nil {
-		return "", err
-	}
-
-	rows := make([][]interface{}, 0, len(userIDs))
-	for _, userID := range userIDs {
-		rows = append(rows, []interface{}{userID})
-	}
-
-	_, err = tx.CopyFrom(
-		ctx,
-		pgx.Identifier{tableName},
-		[]string{"id"},
-		pgx.CopyFromRows(rows),
-	)
-	if err != nil {
-		return "", err
-	}
-
-	return tableName, nil
 }
 
 func (c *ChatRepo) linkChatAndUsers(ctx context.Context, tx pgx.Tx, chatID int64, userIDs []int64) error {
@@ -228,8 +209,8 @@ func (c *ChatRepo) linkChatAndUsers(ctx context.Context, tx pgx.Tx, chatID int64
 
 	_, err := tx.CopyFrom(
 		ctx,
-		pgx.Identifier{"chat_user"},
-		[]string{"chat_id", "user_id"},
+		pgx.Identifier{chatUserTable},
+		[]string{chatIdColumn, userIdColumn},
 		pgx.CopyFromRows(rows),
 	)
 	if err != nil {
