@@ -30,13 +30,13 @@ func NewChatRepo(pool *pgxpool.Pool, logger *zerolog.Logger) *ChatRepo {
 func (c *ChatRepo) Create(ctx context.Context, in *repositories.ChatCreateIn) (*repositories.ChatCreateOut, error) {
 	conn, err := c.pool.Acquire(ctx)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer conn.Release()
 
 	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer func() {
 		if err != nil {
@@ -63,11 +63,8 @@ func (c *ChatRepo) Delete(ctx context.Context, in *repositories.ChatDeleteIn) er
 	}
 
 	_, err := c.pool.Exec(ctx, query, args)
-	if err != nil {
-		return errors.WithStack(err)
-	}
 
-	return nil
+	return err
 }
 
 // SendMessage save message in db
@@ -104,7 +101,7 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 				return repositories.ErrUserNotFound
 			}
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil
@@ -134,13 +131,13 @@ func (c *ChatRepo) createChat(ctx context.Context, tx pgx.Tx) (int64, error) {
 
 	rows, err := tx.Query(ctx, query)
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 	defer rows.Close()
 
 	chat, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[repositories.ChatCreateOut])
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	return chat.ID, nil
@@ -161,7 +158,7 @@ func (c *ChatRepo) createUsers(ctx context.Context, tx pgx.Tx, userIDs []int64) 
 
 	_, err = tx.Exec(ctx, query)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil
@@ -173,7 +170,7 @@ func (c *ChatRepo) createAndFillTempUserTable(ctx context.Context, tx pgx.Tx, us
 
 	_, err := tx.Exec(ctx, query)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	rows := make([][]interface{}, 0, len(userIDs))
@@ -212,7 +209,7 @@ func (c *ChatRepo) linkChatAndUsers(ctx context.Context, tx pgx.Tx, chatID int64
 		pgx.CopyFromRows(rows),
 	)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	return nil
@@ -236,7 +233,7 @@ func (c *ChatRepo) isUserInChat(ctx context.Context, chatID int64, userID int64)
 
 	rows, err := c.pool.Query(ctx, query, args)
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 	defer rows.Close()
 
@@ -245,7 +242,7 @@ func (c *ChatRepo) isUserInChat(ctx context.Context, chatID int64, userID int64)
 	}
 	answer, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[BoolStruct])
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 
 	return answer.Exists, nil

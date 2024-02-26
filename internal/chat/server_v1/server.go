@@ -42,7 +42,7 @@ func (s *Server) Create(ctx context.Context, request *chat_v1.CreateRequest) (*c
 	out, err := s.chatRepo.Create(ctx, &repositories.ChatCreateIn{UserIDs: request.UserIDs})
 	if err != nil {
 		s.logger.Err(err).Msg("не удалось создать чат")
-		return &chat_v1.CreateResponse{}, status.Error(codes.Internal, "прошу понять и простить :(")
+		return nil, status.Error(codes.Internal, "прошу понять и простить :(")
 	}
 
 	return &chat_v1.CreateResponse{Id: out.ID}, nil
@@ -55,7 +55,7 @@ func (s *Server) Delete(ctx context.Context, request *chat_v1.DeleteRequest) (*e
 	err := s.chatRepo.Delete(ctx, &repositories.ChatDeleteIn{ID: request.Id})
 	if err != nil {
 		s.logger.Err(err).Msg("не удалось удалить чат")
-		return &emptypb.Empty{}, status.Error(codes.Internal, "прошу понять и простить :(")
+		return nil, status.Error(codes.Internal, "прошу понять и простить :(")
 	}
 
 	return &emptypb.Empty{}, nil
@@ -75,13 +75,13 @@ func (s *Server) SendMessage(ctx context.Context, request *chat_v1.SendMessageRe
 		switch {
 		case errors.Is(err, repositories.ErrChatNotFound) || errors.Is(err, repositories.ErrUserNotFound):
 			s.logger.Warn().Msg("не удалось отправить сообщение")
-			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
+			return nil, status.Error(codes.NotFound, err.Error())
 		case errors.Is(err, repositories.ErrUserNotInTheChat):
 			s.logger.Warn().Msg("не удалось отправить сообщение")
-			return &emptypb.Empty{}, status.Error(codes.InvalidArgument, err.Error())
+			return nil, status.Error(codes.InvalidArgument, err.Error())
 		default:
 			s.logger.Err(err).Msg("не удалось отправить сообщение")
-			return &emptypb.Empty{}, status.Error(codes.Internal, "прошу понять и простить :(")
+			return nil, status.Error(codes.Internal, "прошу понять и простить :(")
 		}
 	}
 
