@@ -19,15 +19,15 @@ const (
 	userTable     = "user"
 	messageTable  = "message"
 
-	userIdColumn     = "user_id"
-	chatIdColumn     = "chat_id"
-	fromUserIdColumn = "from_user_id"
+	userIDColumn     = "user_id"
+	chatIDColumn     = "chat_id"
+	fromUserIDColumn = "from_user_id"
 	messageColumn    = "message"
 	sentAtColumn     = "sent_at"
 	idColumn         = "id"
 
-	messageChatIdFKConstraint     = "fk_chat_id"
-	messageFromUserIdFKConstraint = "fk_from_user_id"
+	messageChatIDFKConstraint     = "fk_chat_id"
+	messageFromUserIDFKConstraint = "fk_from_user_id"
 )
 
 // ChatRepo user repo for operations with chat.
@@ -104,13 +104,13 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 	query := fmt.Sprintf(
 		queryFormat,
 		messageTable,
-		fromUserIdColumn, chatIdColumn, messageColumn, sentAtColumn,
-		fromUserIdColumn, chatIdColumn, messageColumn, sentAtColumn,
+		fromUserIDColumn, chatIDColumn, messageColumn, sentAtColumn,
+		fromUserIDColumn, chatIDColumn, messageColumn, sentAtColumn,
 	)
 
 	args := pgx.NamedArgs{
-		fromUserIdColumn: in.FromUserID,
-		chatIdColumn:     in.ToChatID,
+		fromUserIDColumn: in.FromUserID,
+		chatIDColumn:     in.ToChatID,
 		messageColumn:    in.Message,
 		sentAtColumn:     in.SendTime,
 	}
@@ -120,9 +120,9 @@ func (c *ChatRepo) SendMessage(ctx context.Context, in *repositories.SendMessage
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			switch {
-			case pgErr.ConstraintName == messageChatIdFKConstraint:
+			case pgErr.ConstraintName == messageChatIDFKConstraint:
 				return repositories.ErrChatNotFound
-			case pgErr.ConstraintName == messageFromUserIdFKConstraint:
+			case pgErr.ConstraintName == messageFromUserIDFKConstraint:
 				return repositories.ErrUserNotFound
 			}
 		}
@@ -210,7 +210,7 @@ func (c *ChatRepo) linkChatAndUsers(ctx context.Context, tx pgx.Tx, chatID int64
 	_, err := tx.CopyFrom(
 		ctx,
 		pgx.Identifier{chatUserTable},
-		[]string{chatIdColumn, userIdColumn},
+		[]string{chatIDColumn, userIDColumn},
 		pgx.CopyFromRows(rows),
 	)
 	if err != nil {
@@ -229,14 +229,14 @@ func (c *ChatRepo) isUserInChat(ctx context.Context, chatID int64, userID int64)
 	query := fmt.Sprintf(
 		queryFormat,
 		chatUserTable,
-		chatIdColumn, chatIdColumn, userIdColumn, userIdColumn,
+		chatIDColumn, chatIDColumn, userIDColumn, userIDColumn,
 	)
 
 	c.logger.Info().Msg(query)
 
 	args := pgx.NamedArgs{
-		chatIdColumn: chatID,
-		userIdColumn: userID,
+		chatIDColumn: chatID,
+		userIDColumn: userID,
 	}
 
 	rows, err := c.pool.Query(ctx, query, args)
