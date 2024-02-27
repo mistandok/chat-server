@@ -1,0 +1,40 @@
+version: '3'
+
+volumes:
+  chat_postgres_volume:
+
+services:
+  storage:
+    image: postgres:16.1
+    volumes:
+      - chat_postgres_volume:/var/lib/postgresql/data
+    env_file:
+      - deploy/env/.env.prod
+    expose:
+      - ${PG_PORT}
+    command: -p ${PG_PORT}
+
+  migrator:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/migrator.Dockerfile
+    env_file:
+      - deploy/env/.env.prod
+    depends_on:
+      - storage
+    environment:
+      PG_HOST: storage
+
+  chat_service:
+    build:
+      context: .
+      dockerfile: deploy/dockerfiles/chat.Dockerfile
+    env_file:
+      - deploy/env/.env.prod
+    depends_on:
+      - storage
+    environment:
+      PG_HOST: storage
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    restart: on-failure
