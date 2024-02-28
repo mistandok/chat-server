@@ -3,13 +3,16 @@ package chat
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/pkg/errors"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
+	serviceModel "github.com/mistandok/chat-server/internal/model"
+	"github.com/mistandok/chat-server/internal/repository/chat/convert"
 )
 
 // Create chat in db
-func (c *Repo) Create(ctx context.Context, userIDs []int64) (int64, error) {
+func (c *Repo) Create(ctx context.Context, userIDs []serviceModel.UserID) (serviceModel.ChatID, error) {
+	repoUserIds := convert.ToSliceIntFromSliceServiceUserID(userIDs)
 	conn, err := c.pool.Acquire(ctx)
 	if err != nil {
 		return 0, err
@@ -28,28 +31,28 @@ func (c *Repo) Create(ctx context.Context, userIDs []int64) (int64, error) {
 		}
 	}()
 
-	chatID, err := c.createChatForUsers(ctx, tx, userIDs)
+	chatID, err := c.createChatForUsers(ctx, tx, repoUserIds)
 	if err != nil {
-		return 0, errors.Errorf("ошибка при генерации пользовательского чата: %v", err)
+		return 0, fmt.Errorf("ошибка при генерации пользовательского чата: %w", err)
 	}
 
-	return chatID, nil
+	return serviceModel.ChatID(chatID), nil
 }
 
 func (c *Repo) createChatForUsers(ctx context.Context, tx pgx.Tx, userIDs []int64) (int64, error) {
 	chatID, err := c.createChat(ctx, tx)
 	if err != nil {
-		return 0, fmt.Errorf("ошибка при создании чата: %v", err)
+		return 0, fmt.Errorf("ошибка при создании чата: %w", err)
 	}
 
 	err = c.createUsers(ctx, tx, userIDs)
 	if err != nil {
-		return 0, fmt.Errorf("ошибка при создании пользователей: %v", err)
+		return 0, fmt.Errorf("ошибка при создании пользователей: %w", err)
 	}
 
 	err = c.linkChatAndUsers(ctx, tx, chatID, userIDs)
 	if err != nil {
-		return 0, fmt.Errorf("ошибка при связывании чата с пользователями: %v", err)
+		return 0, fmt.Errorf("ошибка при связывании чата с пользователями: %w", err)
 	}
 
 	return chatID, nil

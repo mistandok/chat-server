@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"flag"
-	chatRepo "github.com/mistandok/chat-server/internal/repositories/chat"
 	"log"
 	"net"
 	"os"
 
-	"github.com/mistandok/chat-server/internal/chat/server_v1"
+	chatAPI "github.com/mistandok/chat-server/internal/api/chat"
+	chatRepository "github.com/mistandok/chat-server/internal/repository/chat"
+	chatService "github.com/mistandok/chat-server/internal/service/chat"
+
 	"github.com/mistandok/chat-server/internal/config"
 	"github.com/mistandok/chat-server/internal/config/env"
-	"github.com/mistandok/chat-server/internal/repositories/postgresql"
+	"github.com/mistandok/chat-server/internal/repository/postgresql"
 	"github.com/mistandok/chat-server/pkg/chat_v1"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
@@ -59,12 +61,13 @@ func main() {
 
 	logger := setupZeroLog(logConfig)
 
-	chatRepo := chatRepo.NewRepo(pool, logger)
-	chatServer := server_v1.NewServer(logger, chatRepo)
+	chatRepo := chatRepository.NewRepo(pool, logger)
+	chatServ := chatService.NewService(chatRepo, logger)
+	chatAPIServer := chatAPI.NewImplementation(chatServ)
 
 	server := grpc.NewServer()
 	reflection.Register(server)
-	chat_v1.RegisterChatV1Server(server, chatServer)
+	chat_v1.RegisterChatV1Server(server, chatAPIServer)
 
 	log.Printf("сервер запущен на %v", listener.Addr())
 

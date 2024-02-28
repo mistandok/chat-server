@@ -3,22 +3,26 @@ package chat
 import (
 	"context"
 	"fmt"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/mistandok/chat-server/internal/repositories"
-	"github.com/mistandok/chat-server/internal/repositories/chat/model"
+	serviceModel "github.com/mistandok/chat-server/internal/model"
+	"github.com/mistandok/chat-server/internal/repository"
+	"github.com/mistandok/chat-server/internal/repository/chat/convert"
 	"github.com/pkg/errors"
 )
 
 // SendMessage save message in db
-func (c *Repo) SendMessage(ctx context.Context, in *model.Message) error {
-	userLinkedWithChat, err := c.isUserInChat(ctx, in.ToChatID, in.FromUserID)
+func (c *Repo) SendMessage(ctx context.Context, message serviceModel.Message) error {
+	repoMessage := convert.ToMessageFromServiceMessage(&message)
+
+	userLinkedWithChat, err := c.isUserInChat(ctx, repoMessage.ToChatID, repoMessage.FromUserID)
 	if err != nil {
-		return errors.Errorf("ошибка во время проверки наличия пользователя в чате: %v", err)
+		return fmt.Errorf("ошибка во время проверки наличия пользователя в чате: %w", err)
 	}
 
 	if !userLinkedWithChat {
-		return repositories.ErrUserNotInTheChat
+		return repository.ErrUserNotInTheChat
 	}
 
 	queryFormat := `
@@ -28,15 +32,15 @@ func (c *Repo) SendMessage(ctx context.Context, in *model.Message) error {
 	query := fmt.Sprintf(
 		queryFormat,
 		messageTable,
-		fromUserIDColumn, chatIDColumn, messageColumn, sentAtColumn,
-		fromUserIDColumn, chatIDColumn, messageColumn, sentAtColumn,
+		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
+		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
 	)
 
 	args := pgx.NamedArgs{
-		fromUserIDColumn: in.FromUserID,
-		chatIDColumn:     in.ToChatID,
-		messageColumn:    in.Message,
-		sentAtColumn:     in.SendTime,
+		fromUserIDColumn: repoMessage.FromUserID,
+		chatIDColumn:     repoMessage.ToChatID,
+		textColumn:       repoMessage.Text,
+		sentAtColumn:     repoMessage.SendTime,
 	}
 
 	_, err = c.pool.Exec(ctx, query, args)
@@ -45,9 +49,9 @@ func (c *Repo) SendMessage(ctx context.Context, in *model.Message) error {
 		if errors.As(err, &pgErr) {
 			switch {
 			case pgErr.ConstraintName == messageChatIDFKConstraint:
-				return repositories.ErrChatNotFound
+				return repository.ErrChatNotFound
 			case pgErr.ConstraintName == messageFromUserIDFKConstraint:
-				return repositories.ErrUserNotFound
+				return repository.ErrUserNotFound
 			}
 		}
 		return err
@@ -67,8 +71,6 @@ func (c *Repo) isUserInChat(ctx context.Context, chatID int64, userID int64) (bo
 		chatUserTable,
 		chatIDColumn, chatIDColumn, userIDColumn, userIDColumn,
 	)
-
-	c.logger.Info().Msg(query)
 
 	args := pgx.NamedArgs{
 		chatIDColumn: chatID,

@@ -1,6 +1,7 @@
 package env
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -32,7 +33,7 @@ func (s *LogCfgSearcher) Get() (*config.LogConfig, error) {
 
 	logLevelInt, err := strconv.Atoi(level)
 	if err != nil {
-		return nil, errors.Errorf("некорректное значение уровня логирования: %v", err)
+		return nil, fmt.Errorf("некорректное значение уровня логирования: %w", err)
 	}
 
 	timeFormat := os.Getenv(logTimeFormat)

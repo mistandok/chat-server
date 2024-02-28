@@ -1,6 +1,7 @@
 package env
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -39,7 +40,7 @@ func (s *PgCfgSearcher) Get() (*config.PgConfig, error) {
 
 	dbPortInt, err := strconv.Atoi(dbPort)
 	if err != nil {
-		return nil, errors.Errorf("некорректный формат порта: %v", err)
+		return nil, fmt.Errorf("некорректный формат порта: %w", err)
 	}
 
 	dbUser := os.Getenv(user)
