@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	chatRepo "github.com/mistandok/chat-server/internal/repositories/chat"
 	"log"
 	"net"
 	"os"
@@ -58,7 +59,7 @@ func main() {
 
 	logger := setupZeroLog(logConfig)
 
-	chatRepo := postgresql.NewChatRepo(pool, logger)
+	chatRepo := chatRepo.NewRepo(pool, logger)
 	chatServer := server_v1.NewServer(logger, chatRepo)
 
 	server := grpc.NewServer()

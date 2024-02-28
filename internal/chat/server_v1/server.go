@@ -3,6 +3,7 @@ package server_v1
 import (
 	"context"
 	"fmt"
+	"github.com/mistandok/chat-server/internal/repositories/chat/model"
 
 	"github.com/mistandok/chat-server/internal/repositories"
 	"github.com/mistandok/chat-server/pkg/chat_v1"
@@ -13,22 +14,15 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// ChatRepo interface for work with chat.
-type ChatRepo interface {
-	Create(context.Context, *repositories.ChatCreateIn) (*repositories.ChatCreateOut, error)
-	Delete(context.Context, *repositories.ChatDeleteIn) error
-	SendMessage(context.Context, *repositories.SendMessageIn) error
-}
-
 // Server chat Server.
 type Server struct {
 	chat_v1.UnimplementedChatV1Server
 	logger   *zerolog.Logger
-	chatRepo ChatRepo
+	chatRepo repositories.ChatRepository
 }
 
 // NewServer generate instance for chat Server.
-func NewServer(logger *zerolog.Logger, chatRepo ChatRepo) *Server {
+func NewServer(logger *zerolog.Logger, chatRepo repositories.ChatRepository) *Server {
 	return &Server{
 		logger:   logger,
 		chatRepo: chatRepo,
@@ -39,20 +33,20 @@ func NewServer(logger *zerolog.Logger, chatRepo ChatRepo) *Server {
 func (s *Server) Create(ctx context.Context, request *chat_v1.CreateRequest) (*chat_v1.CreateResponse, error) {
 	s.logger.Debug().Msg(fmt.Sprintf("try create chat: %+v", request))
 
-	out, err := s.chatRepo.Create(ctx, &repositories.ChatCreateIn{UserIDs: request.UserIDs})
+	chatId, err := s.chatRepo.Create(ctx, request.UserIDs)
 	if err != nil {
 		s.logger.Err(err).Msg("не удалось создать чат")
 		return nil, status.Error(codes.Internal, "прошу понять и простить :(")
 	}
 
-	return &chat_v1.CreateResponse{Id: out.ID}, nil
+	return &chat_v1.CreateResponse{Id: chatId}, nil
 }
 
 // Delete chat by params.
 func (s *Server) Delete(ctx context.Context, request *chat_v1.DeleteRequest) (*emptypb.Empty, error) {
 	s.logger.Debug().Msg(fmt.Sprintf("try delete chat: %+v", request))
 
-	err := s.chatRepo.Delete(ctx, &repositories.ChatDeleteIn{ID: request.Id})
+	err := s.chatRepo.Delete(ctx, request.Id)
 	if err != nil {
 		s.logger.Err(err).Msg("не удалось удалить чат")
 		return nil, status.Error(codes.Internal, "прошу понять и простить :(")
@@ -65,7 +59,7 @@ func (s *Server) Delete(ctx context.Context, request *chat_v1.DeleteRequest) (*e
 func (s *Server) SendMessage(ctx context.Context, request *chat_v1.SendMessageRequest) (*emptypb.Empty, error) {
 	s.logger.Debug().Msg(fmt.Sprintf("try send message to chat: %+v", request))
 
-	err := s.chatRepo.SendMessage(ctx, &repositories.SendMessageIn{
+	err := s.chatRepo.SendMessage(ctx, &model.Message{
 		FromUserID: request.From,
 		Message:    request.Text,
 		ToChatID:   request.ToChatId,
