@@ -28,7 +28,7 @@ func NewDB(dbc *pgxpool.Pool) db.DB {
 
 // ExecContext ..
 func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (pgconn.CommandTag, error) {
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.Exec(ctx, q.QueryRaw, args...)
 	}
@@ -38,7 +38,7 @@ func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (
 
 // QueryContext ..
 func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.Query(ctx, q.QueryRaw, args...)
 	}
@@ -48,7 +48,7 @@ func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) 
 
 // QueryRowContext ..
 func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.QueryRow(ctx, q.QueryRaw, args...)
 	}
@@ -58,7 +58,7 @@ func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{
 
 // CopyFromContext ..
 func (p *pg) CopyFromContext(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) {
-	tx, ok := ctx.Value(TxKey).(pgx.Tx)
+	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.CopyFrom(
 			ctx,
@@ -91,13 +91,13 @@ func (p *pg) Close() {
 	p.pool.Close()
 }
 
-// MakeContextTx ..
+// MakeContextTx добавляет транзакцию в контекст
 func MakeContextTx(ctx context.Context, tx pgx.Tx) context.Context {
 	return context.WithValue(ctx, TxKey, tx)
 }
 
-// ConfigTx ..
-func ConfigTx(ctx context.Context) (pgx.Tx, bool) {
+// ContextTx извлекает транзакцию из контекста
+func ContextTx(ctx context.Context) (pgx.Tx, bool) {
 	tx, ok := ctx.Value(TxKey).(pgx.Tx)
 	if !ok {
 		return nil, false
