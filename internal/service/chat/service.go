@@ -15,10 +15,10 @@ type Service struct {
 
 // NewService ..
 func NewService(
+	logger *zerolog.Logger,
 	chatRepo repository.ChatRepository,
 	userRepo repository.UserRepository,
 	messageRepo repository.MessageRepository,
-	logger *zerolog.Logger,
 ) *Service {
 	return &Service{
 		chatRepo:    chatRepo,
