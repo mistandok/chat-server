@@ -8,7 +8,8 @@ import (
 	serviceModel "github.com/mistandok/chat-server/internal/model"
 )
 
-func (c *Repo) Delete(ctx context.Context, chatID serviceModel.ChatID) error {
+// Delete ..
+func (r *Repo) Delete(ctx context.Context, chatID serviceModel.ChatID) error {
 	queryFormat := `DELETE FROM %s WHERE %s = @%s`
 	query := fmt.Sprintf(queryFormat, chatTable, idColumn, idColumn)
 
@@ -16,7 +17,7 @@ func (c *Repo) Delete(ctx context.Context, chatID serviceModel.ChatID) error {
 		idColumn: chatID,
 	}
 
-	_, err := c.pool.Exec(ctx, query, args)
+	_, err := r.pool.Exec(ctx, query, args)
 
 	return err
 }

@@ -5,6 +5,7 @@ import (
 	desc "github.com/mistandok/chat-server/pkg/chat_v1"
 )
 
+// ToSliceUserIDsFromSliceIntDesc ..
 func ToSliceUserIDsFromSliceIntDesc(userIDs []int64) []model.UserID {
 	result := make([]model.UserID, 0, len(userIDs))
 	for _, userID := range userIDs {
@@ -14,6 +15,7 @@ func ToSliceUserIDsFromSliceIntDesc(userIDs []int64) []model.UserID {
 	return result
 }
 
+// ToMessageFromDesc ..
 func ToMessageFromDesc(request *desc.SendMessageRequest) *model.Message {
 	return &model.Message{
 		FromUserID: model.UserID(request.From),

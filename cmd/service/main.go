@@ -7,6 +7,9 @@ import (
 	"net"
 	"os"
 
+	"github.com/mistandok/chat-server/internal/repository/message"
+	"github.com/mistandok/chat-server/internal/repository/user"
+
 	chatAPI "github.com/mistandok/chat-server/internal/api/chat"
 	chatRepository "github.com/mistandok/chat-server/internal/repository/chat"
 	chatService "github.com/mistandok/chat-server/internal/service/chat"
@@ -62,7 +65,9 @@ func main() {
 	logger := setupZeroLog(logConfig)
 
 	chatRepo := chatRepository.NewRepo(pool, logger)
-	chatServ := chatService.NewService(chatRepo, logger)
+	userRepo := user.NewRepo(pool, logger)
+	messageRepo := message.NewRepo(pool, logger)
+	chatServ := chatService.NewService(chatRepo, userRepo, messageRepo, logger)
 	chatAPIServer := chatAPI.NewImplementation(chatServ)
 
 	server := grpc.NewServer()

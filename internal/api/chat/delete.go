@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Delete ..
 func (i *Implementation) Delete(ctx context.Context, request *chat_v1.DeleteRequest) (*emptypb.Empty, error) {
 	err := i.chatService.Delete(ctx, model.ChatID(request.Id))
 	if err != nil {

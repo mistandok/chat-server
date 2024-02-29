@@ -1,4 +1,4 @@
-package chat
+package user
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -7,15 +7,13 @@ import (
 )
 
 const (
-	chatTable     = "chat"
-	chatUserTable = "chat_user"
+	userTable = "user"
 
 	userIDColumn = "user_id"
-	chatIDColumn = "chat_id"
 	idColumn     = "id"
 )
 
-var _ repository.ChatRepository = (*Repo)(nil)
+var _ repository.UserRepository = (*Repo)(nil)
 
 // Repo ..
 type Repo struct {

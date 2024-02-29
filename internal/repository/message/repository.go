@@ -1,4 +1,4 @@
-package chat
+package message
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -7,15 +7,19 @@ import (
 )
 
 const (
-	chatTable     = "chat"
-	chatUserTable = "chat_user"
+	messageTable = "message"
 
-	userIDColumn = "user_id"
-	chatIDColumn = "chat_id"
-	idColumn     = "id"
+	chatIDColumn     = "chat_id"
+	fromUserIDColumn = "from_user_id"
+	textColumn       = "text"
+	sentAtColumn     = "sent_at"
+	idColumn         = "id"
+
+	messageChatIDFKConstraint     = "fk_chat_id"
+	messageFromUserIDFKConstraint = "fk_from_user_id"
 )
 
-var _ repository.ChatRepository = (*Repo)(nil)
+var _ repository.MessageRepository = (*Repo)(nil)
 
 // Repo ..
 type Repo struct {

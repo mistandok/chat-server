@@ -5,14 +5,25 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Service ..
 type Service struct {
-	chatRepo repository.ChatRepository
-	logger   *zerolog.Logger
+	chatRepo    repository.ChatRepository
+	userRepo    repository.UserRepository
+	messageRepo repository.MessageRepository
+	logger      *zerolog.Logger
 }
 
-func NewService(chatRepo repository.ChatRepository, logger *zerolog.Logger) *Service {
+// NewService ..
+func NewService(
+	chatRepo repository.ChatRepository,
+	userRepo repository.UserRepository,
+	messageRepo repository.MessageRepository,
+	logger *zerolog.Logger,
+) *Service {
 	return &Service{
-		chatRepo: chatRepo,
-		logger:   logger,
+		chatRepo:    chatRepo,
+		userRepo:    userRepo,
+		messageRepo: messageRepo,
+		logger:      logger,
 	}
 }

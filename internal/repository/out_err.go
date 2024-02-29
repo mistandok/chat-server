@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/pkg/errors"
+import "errors"
 
 const (
 	errMsgChatNotFound     = "чата не существует"
