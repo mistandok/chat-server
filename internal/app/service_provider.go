@@ -170,7 +170,7 @@ func (s *serviceProvider) ChatImpl(ctx context.Context) *chat.Implementation {
 func setupZeroLog(logConfig *config.LogConfig) *zerolog.Logger {
 	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: logConfig.TimeFormat}
 	logger := zerolog.New(output).With().Timestamp().Logger()
-	zerolog.SetGlobalLevel(logConfig.LogLevel)
+	logger = logger.Level(logConfig.LogLevel)
 	zerolog.TimeFieldFormat = logConfig.TimeFormat
 
 	return &logger

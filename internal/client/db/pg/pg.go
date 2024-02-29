@@ -2,11 +2,12 @@ package pg
 
 import (
 	"context"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mistandok/chat-server/internal/client/db"
+	"github.com/mistandok/chat-server/internal/client/db/prettier"
+	"github.com/rs/zerolog"
 )
 
 type key string
@@ -16,18 +17,22 @@ const (
 )
 
 type pg struct {
-	pool *pgxpool.Pool
+	pool   *pgxpool.Pool
+	logger *zerolog.Logger
 }
 
 // NewDB ..
-func NewDB(dbc *pgxpool.Pool) db.DB {
+func NewDB(dbc *pgxpool.Pool, logger *zerolog.Logger) db.DB {
 	return &pg{
-		pool: dbc,
+		pool:   dbc,
+		logger: logger,
 	}
 }
 
 // ExecContext ..
 func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (pgconn.CommandTag, error) {
+	logQuery(ctx, p.logger, q, args)
+
 	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.Exec(ctx, q.QueryRaw, args...)
@@ -38,6 +43,8 @@ func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (
 
 // QueryContext ..
 func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
+	logQuery(ctx, p.logger, q, args)
+
 	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.Query(ctx, q.QueryRaw, args...)
@@ -48,6 +55,8 @@ func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) 
 
 // QueryRowContext ..
 func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
+	logQuery(ctx, p.logger, q, args)
+
 	tx, ok := ContextTx(ctx)
 	if ok {
 		return tx.QueryRow(ctx, q.QueryRaw, args...)
@@ -104,4 +113,11 @@ func ContextTx(ctx context.Context) (pgx.Tx, bool) {
 	}
 
 	return tx, true
+}
+
+func logQuery(_ context.Context, logger *zerolog.Logger, q db.Query, args ...interface{}) {
+	if logLevel := logger.GetLevel(); logLevel == zerolog.DebugLevel {
+		prettyQuery := prettier.Pretty(q.QueryRaw, prettier.PlaceholderDog, args...)
+		logger.Debug().Str("sql", q.Name).Str("query", prettyQuery).Msg("лог запроса")
+	}
 }

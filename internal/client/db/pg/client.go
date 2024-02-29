@@ -27,7 +27,7 @@ func New(ctx context.Context, dsn string, logger *zerolog.Logger) (db.Client, er
 	}
 
 	return &pgClient{
-		masterDBC: &pg{pool: pool},
+		masterDBC: NewDB(pool, logger),
 		logger:    logger,
 	}, nil
 }
