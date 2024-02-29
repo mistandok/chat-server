@@ -2,7 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
+	"github.com/mistandok/chat-server/internal/client/db"
+	"github.com/mistandok/chat-server/internal/client/db/pg"
 	"log"
 	"os"
 
@@ -25,7 +26,8 @@ type serviceProvider struct {
 	grpcConfig *config.GRPCConfig
 	logger     *zerolog.Logger
 
-	pool *pgxpool.Pool
+	pool     *pgxpool.Pool
+	dbClient db.Client
 
 	chatRepo    repository.ChatRepository
 	userRepo    repository.UserRepository
@@ -88,7 +90,7 @@ func (s *serviceProvider) Logger() *zerolog.Logger {
 // Pool ..
 func (s *serviceProvider) Pool(ctx context.Context) *pgxpool.Pool {
 	if s.pool == nil {
-		pgxConfig, err := pgxpool.ParseConfig(getPgURL(*s.PgConfig()))
+		pgxConfig, err := pgxpool.ParseConfig(s.PgConfig().DSN())
 		if err != nil {
 			log.Fatalf("ошибка при формировании конфига для pgxpool: %v", err)
 		}
@@ -110,10 +112,30 @@ func (s *serviceProvider) Pool(ctx context.Context) *pgxpool.Pool {
 	return s.pool
 }
 
+// DBClient ..
+func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
+	if s.dbClient == nil {
+		cl, err := pg.New(ctx, s.PgConfig().DSN())
+		if err != nil {
+			log.Fatalf("ошибка при создании клиента DB: %v", err)
+		}
+
+		err = cl.DB().Ping(ctx)
+		if err != nil {
+			log.Fatalf("нет связи с БД: %s", err.Error())
+		}
+		closer.Add(cl.Close)
+
+		s.dbClient = cl
+	}
+
+	return s.dbClient
+}
+
 // ChatRepository ..
 func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRepository {
 	if s.chatRepo == nil {
-		s.chatRepo = chatRepository.NewRepo(s.Pool(ctx), s.Logger())
+		s.chatRepo = chatRepository.NewRepo(s.Pool(ctx), s.Logger(), s.DBClient(ctx))
 	}
 
 	return s.chatRepo
@@ -158,13 +180,6 @@ func (s *serviceProvider) ChatImpl(ctx context.Context) *chat.Implementation {
 	}
 
 	return s.chatImpl
-}
-
-func getPgURL(cfg config.PgConfig) string {
-	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s",
-		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DbName,
-	)
 }
 
 func setupZeroLog(logConfig *config.LogConfig) *zerolog.Logger {
