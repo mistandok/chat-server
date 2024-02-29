@@ -10,22 +10,34 @@ import (
 // Create ..
 func (s *Service) Create(ctx context.Context, userIDs []model.UserID) (model.ChatID, error) {
 	s.logger.Debug().Msg("попытка создать чат")
-	chatID, err := s.chatRepo.Create(ctx)
-	if err != nil {
-		s.logger.Err(err).Msg("не удалось создать чат")
-		return 0, fmt.Errorf("ошибка при попытке создания чата: %w", err)
-	}
 
-	err = s.userRepo.CreateMass(ctx, userIDs)
-	if err != nil {
-		s.logger.Err(err).Msg("не удалось создать пользователей")
-		return 0, fmt.Errorf("ошибка при попытке создания чата: %w", err)
-	}
+	var chatID model.ChatID
+	var err error
 
-	err = s.chatRepo.LinkChatAndUsers(ctx, chatID, userIDs)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		var txErr error
+		chatID, txErr = s.chatRepo.Create(ctx)
+		if txErr != nil {
+			s.logger.Err(txErr).Msg("не удалось создать чат")
+			return fmt.Errorf("ошибка при попытке создания чата: %w", txErr)
+		}
+
+		txErr = s.userRepo.CreateMass(ctx, userIDs)
+		if err != nil {
+			s.logger.Err(txErr).Msg("не удалось создать пользователей")
+			return fmt.Errorf("ошибка при попытке создания пользователей: %w", txErr)
+		}
+
+		txErr = s.chatRepo.LinkChatAndUsers(ctx, chatID, userIDs)
+		if txErr != nil {
+			s.logger.Err(txErr).Msg("не удалось связать пользователей с чатом")
+			return fmt.Errorf("ошибка при попытке свящать пользователей с чатом: %w", txErr)
+		}
+
+		return nil
+	})
 	if err != nil {
-		s.logger.Err(err).Msg("не удалось связать пользователей с чатом")
-		return 0, fmt.Errorf("ошибка при попытке создания чата: %w", err)
+		return 0, err
 	}
 
 	return chatID, nil

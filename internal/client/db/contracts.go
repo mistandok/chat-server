@@ -2,8 +2,9 @@ package db
 
 import (
 	"context"
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Handler - функция, которая выполняется в транзакции
@@ -34,14 +35,8 @@ type Transactor interface {
 
 // SQLExecutor комбинирует NamedExecutor и QueryExecutor
 type SQLExecutor interface {
-	NamedExecutor
 	QueryExecutor
-}
-
-// NamedExecutor интерфейс для работы с именованными запросами с помощью тегов в структурах
-type NamedExecutor interface {
-	ScanOneContext(ctx context.Context, dest interface{}, q Query, args ...interface{}) error
-	ScanAllContext(ctx context.Context, dest interface{}, q Query, args ...interface{}) error
+	CopyExecutor
 }
 
 // QueryExecutor интерфейс для работы с обычными запросами
@@ -49,6 +44,11 @@ type QueryExecutor interface {
 	ExecContext(ctx context.Context, q Query, args ...interface{}) (pgconn.CommandTag, error)
 	QueryContext(ctx context.Context, q Query, args ...interface{}) (pgx.Rows, error)
 	QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgx.Row
+}
+
+// CopyExecutor интерфейс для работы с копирующими запросами
+type CopyExecutor interface {
+	CopyFromContext(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error)
 }
 
 // Pinger интерфейс для проверки соединения с БД

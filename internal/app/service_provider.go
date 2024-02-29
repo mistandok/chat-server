@@ -2,12 +2,12 @@ package app
 
 import (
 	"context"
-	"github.com/mistandok/chat-server/internal/client/db"
-	"github.com/mistandok/chat-server/internal/client/db/pg"
 	"log"
 	"os"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mistandok/chat-server/internal/client/db"
+	"github.com/mistandok/chat-server/internal/client/db/pg"
+
 	"github.com/mistandok/chat-server/internal/api/chat"
 	"github.com/mistandok/chat-server/internal/closer"
 	"github.com/mistandok/chat-server/internal/config"
@@ -26,8 +26,8 @@ type serviceProvider struct {
 	grpcConfig *config.GRPCConfig
 	logger     *zerolog.Logger
 
-	pool     *pgxpool.Pool
-	dbClient db.Client
+	dbClient  db.Client
+	txManager db.TxManager
 
 	chatRepo    repository.ChatRepository
 	userRepo    repository.UserRepository
@@ -87,35 +87,10 @@ func (s *serviceProvider) Logger() *zerolog.Logger {
 	return s.logger
 }
 
-// Pool ..
-func (s *serviceProvider) Pool(ctx context.Context) *pgxpool.Pool {
-	if s.pool == nil {
-		pgxConfig, err := pgxpool.ParseConfig(s.PgConfig().DSN())
-		if err != nil {
-			log.Fatalf("ошибка при формировании конфига для pgxpool: %v", err)
-		}
-
-		pool, err := pgxpool.NewWithConfig(ctx, pgxConfig)
-		if err != nil {
-			log.Fatalf("ошибка при подключении к DB: %v", err)
-		}
-		poolCloser := func() error {
-			pool.Close()
-			return nil
-		}
-
-		closer.Add(poolCloser)
-
-		s.pool = pool
-	}
-
-	return s.pool
-}
-
 // DBClient ..
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {
-		cl, err := pg.New(ctx, s.PgConfig().DSN())
+		cl, err := pg.New(ctx, s.PgConfig().DSN(), s.Logger())
 		if err != nil {
 			log.Fatalf("ошибка при создании клиента DB: %v", err)
 		}
@@ -132,10 +107,19 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
+// TxManager ..
+func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
+	if s.txManager == nil {
+		s.txManager = pg.NewTransactionManager(s.DBClient(ctx).DB())
+	}
+
+	return s.txManager
+}
+
 // ChatRepository ..
 func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRepository {
 	if s.chatRepo == nil {
-		s.chatRepo = chatRepository.NewRepo(s.Pool(ctx), s.Logger(), s.DBClient(ctx))
+		s.chatRepo = chatRepository.NewRepo(s.Logger(), s.DBClient(ctx))
 	}
 
 	return s.chatRepo
@@ -144,7 +128,7 @@ func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRep
 // UserRepository ..
 func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRepository {
 	if s.userRepo == nil {
-		s.userRepo = userRepository.NewRepo(s.Pool(ctx), s.Logger())
+		s.userRepo = userRepository.NewRepo(s.Logger(), s.DBClient(ctx))
 	}
 
 	return s.userRepo
@@ -153,7 +137,7 @@ func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRep
 // MessageRepository ..
 func (s *serviceProvider) MessageRepository(ctx context.Context) repository.MessageRepository {
 	if s.messageRepo == nil {
-		s.messageRepo = messageRepository.NewRepo(s.Pool(ctx), s.Logger())
+		s.messageRepo = messageRepository.NewRepo(s.Logger(), s.DBClient(ctx))
 	}
 
 	return s.messageRepo
@@ -164,6 +148,7 @@ func (s *serviceProvider) ChatService(ctx context.Context) service.ChatService {
 	if s.chatService == nil {
 		s.chatService = chatService.NewService(
 			s.Logger(),
+			s.TxManager(ctx),
 			s.ChatRepository(ctx),
 			s.UserRepository(ctx),
 			s.MessageRepository(ctx),

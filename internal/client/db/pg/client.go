@@ -2,30 +2,42 @@ package pg
 
 import (
 	"context"
-	"github.com/jackc/pgx/v4/pgxpool"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mistandok/chat-server/internal/client/db"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 )
 
 type pgClient struct {
 	masterDBC db.DB
+	logger    *zerolog.Logger
 }
 
-func New(ctx context.Context, dsn string) (db.Client, error) {
-	dbc, err := pgxpool.Connect(ctx, dsn)
+// New новый клиент для работы с Postgres
+func New(ctx context.Context, dsn string, logger *zerolog.Logger) (db.Client, error) {
+	pgxConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, errors.Errorf("failed to connect to db: %v", err)
+		return nil, errors.Errorf("ошибка при формировании конфига для pgxpool: %v", err)
+	}
+
+	pool, err := pgxpool.NewWithConfig(ctx, pgxConfig)
+	if err != nil {
+		return nil, errors.Errorf("ошибка при подключении к БД: %v", err)
 	}
 
 	return &pgClient{
-		masterDBC: &pg{dbc: dbc},
+		masterDBC: &pg{pool: pool},
+		logger:    logger,
 	}, nil
 }
 
+// DB доступ к интерфейсу базы данных
 func (c *pgClient) DB() db.DB {
 	return c.masterDBC
 }
 
+// Close закрытие соединений
 func (c *pgClient) Close() error {
 	if c.masterDBC != nil {
 		c.masterDBC.Close()

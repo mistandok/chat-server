@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mistandok/chat-server/internal/client/db"
+
 	"github.com/jackc/pgx/v5"
 	serviceModel "github.com/mistandok/chat-server/internal/model"
 	"github.com/pkg/errors"
@@ -23,12 +25,17 @@ func (r *Repo) IsUserInChat(ctx context.Context, chatID serviceModel.ChatID, use
 		chatIDColumn, chatIDColumn, userIDColumn, userIDColumn,
 	)
 
+	q := db.Query{
+		Name:     "chat_repository.IsUserInChat",
+		QueryRaw: query,
+	}
+
 	args := pgx.NamedArgs{
 		chatIDColumn: int64(chatID),
 		userIDColumn: int64(userID),
 	}
 
-	rows, err := r.pool.Query(ctx, query, args)
+	rows, err := r.db.DB().QueryContext(ctx, q, args)
 	if err != nil {
 		return false, err
 	}

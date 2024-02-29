@@ -23,7 +23,7 @@ func (r *Repo) LinkChatAndUsers(ctx context.Context, chatID serviceModel.ChatID,
 		rows = append(rows, []interface{}{repoChatID, userID})
 	}
 
-	_, err := r.pool.CopyFrom(
+	_, err := r.db.DB().CopyFromContext(
 		ctx,
 		pgx.Identifier{chatUserTable},
 		[]string{chatIDColumn, userIDColumn},

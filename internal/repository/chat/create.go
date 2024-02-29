@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mistandok/chat-server/internal/client/db"
+
 	"github.com/jackc/pgx/v5"
 	serviceModel "github.com/mistandok/chat-server/internal/model"
 )
@@ -12,8 +14,12 @@ import (
 func (r *Repo) Create(ctx context.Context) (serviceModel.ChatID, error) {
 	queryFormat := `INSERT INTO %s DEFAULT VALUES RETURNING id`
 	query := fmt.Sprintf(queryFormat, chatTable)
+	q := db.Query{
+		Name:     "chat_repository.Create",
+		QueryRaw: query,
+	}
 
-	rows, err := r.pool.Query(ctx, query)
+	rows, err := r.db.DB().QueryContext(ctx, q)
 	if err != nil {
 		return 0, err
 	}

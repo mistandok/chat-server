@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mistandok/chat-server/internal/client/db"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	serviceModel "github.com/mistandok/chat-server/internal/model"
@@ -27,6 +29,10 @@ func (r *Repo) Create(ctx context.Context, message serviceModel.Message) error {
 		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
 		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
 	)
+	q := db.Query{
+		Name:     "message_repository.Create",
+		QueryRaw: query,
+	}
 
 	args := pgx.NamedArgs{
 		fromUserIDColumn: repoMessage.FromUserID,
@@ -35,7 +41,7 @@ func (r *Repo) Create(ctx context.Context, message serviceModel.Message) error {
 		sentAtColumn:     repoMessage.SendTime,
 	}
 
-	_, err := r.pool.Exec(ctx, query, args)
+	_, err := r.db.DB().ExecContext(ctx, q, args)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

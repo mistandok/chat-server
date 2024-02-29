@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mistandok/chat-server/internal/client/db"
+
 	serviceModel "github.com/mistandok/chat-server/internal/model"
 	"github.com/mistandok/chat-server/internal/repository/user/convert"
 )
@@ -31,7 +33,12 @@ func (r *Repo) CreateMass(ctx context.Context, userIDs []serviceModel.UserID) er
 		ON CONFLICT DO NOTHING
 	`
 	query := fmt.Sprintf(queryFormat, userTable, idColumn, values)
-	_, err := r.pool.Exec(ctx, query)
+	q := db.Query{
+		Name:     "user_repository.CreateMass",
+		QueryRaw: query,
+	}
+
+	_, err := r.db.DB().ExecContext(ctx, q)
 	if err != nil {
 		return err
 	}
