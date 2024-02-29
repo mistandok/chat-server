@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	PlaceholderDollar   = "$"
-	PlaceholderQuestion = "?"
-	PlaceholderDog      = "@"
+	PlaceholderDollar   = "$" // PlaceholderDollar ..
+	PlaceholderQuestion = "?" // PlaceholderQuestion ..
+	PlaceholderDog      = "@" // PlaceholderDog ..
 )
 
+// Pretty ..
 func Pretty(query string, placeholder string, args ...any) string {
 	for i, param := range args {
 		var value string
