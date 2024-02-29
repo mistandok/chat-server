@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/mistandok/chat-server/internal/app"
 	"log"
+
+	"github.com/mistandok/chat-server/internal/app"
 )
 
 var configPath string

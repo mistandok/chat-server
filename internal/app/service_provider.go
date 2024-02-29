@@ -3,6 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mistandok/chat-server/internal/api/chat"
 	"github.com/mistandok/chat-server/internal/closer"
@@ -15,8 +18,6 @@ import (
 	"github.com/mistandok/chat-server/internal/service"
 	chatService "github.com/mistandok/chat-server/internal/service/chat"
 	"github.com/rs/zerolog"
-	"log"
-	"os"
 )
 
 type serviceProvider struct {

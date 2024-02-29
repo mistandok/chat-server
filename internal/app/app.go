@@ -2,14 +2,15 @@ package app
 
 import (
 	"context"
+	"log"
+	"net"
+
 	"github.com/mistandok/chat-server/internal/closer"
 	"github.com/mistandok/chat-server/internal/config"
 	desc "github.com/mistandok/chat-server/pkg/chat_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
 )
 
 // App ..
