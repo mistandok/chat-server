@@ -32,7 +32,7 @@ func NewDB(dbc *pgxpool.Pool, logger *zerolog.Logger) db.DB {
 
 // ExecContext ..
 func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (pgconn.CommandTag, error) {
-	logQuery(ctx, p.logger, q, args)
+	logQuery(ctx, p.logger, q)
 
 	tx, ok := ContextTx(ctx)
 	if ok {
@@ -44,7 +44,7 @@ func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (
 
 // QueryContext ..
 func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
-	logQuery(ctx, p.logger, q, args)
+	logQuery(ctx, p.logger, q)
 
 	tx, ok := ContextTx(ctx)
 	if ok {
@@ -56,7 +56,7 @@ func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) 
 
 // QueryRowContext ..
 func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
-	logQuery(ctx, p.logger, q, args)
+	logQuery(ctx, p.logger, q)
 
 	tx, ok := ContextTx(ctx)
 	if ok {
@@ -116,9 +116,9 @@ func ContextTx(ctx context.Context) (pgx.Tx, bool) {
 	return tx, true
 }
 
-func logQuery(_ context.Context, logger *zerolog.Logger, q db.Query, args ...interface{}) {
+func logQuery(_ context.Context, logger *zerolog.Logger, q db.Query) {
 	if logLevel := logger.GetLevel(); logLevel == zerolog.DebugLevel {
-		prettyQuery := prettier.Pretty(q.QueryRaw, prettier.PlaceholderDog, args...)
+		prettyQuery := prettier.Pretty(q.QueryRaw)
 		logger.Debug().Str("sql", q.Name).Str("query", prettyQuery).Msg("лог запроса")
 	}
 }
