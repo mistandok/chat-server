@@ -2,16 +2,10 @@ package model
 
 import "time"
 
-// ChatID ..
-type ChatID int64
-
-// UserID ..
-type UserID int64
-
 // Message ..
 type Message struct {
-	FromUserID UserID
+	FromUserID int64
 	Text       string
-	ToChatID   ChatID
+	ToChatID   int64
 	SendTime   time.Time
 }

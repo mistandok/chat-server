@@ -2,17 +2,16 @@ package chat
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/mistandok/chat-server/internal/client/db"
 
 	"github.com/jackc/pgx/v5"
-	serviceModel "github.com/mistandok/chat-server/internal/model"
-	"github.com/pkg/errors"
 )
 
 // IsUserInChat ..
-func (r *Repo) IsUserInChat(ctx context.Context, chatID serviceModel.ChatID, userID serviceModel.UserID) (bool, error) {
+func (r *Repo) IsUserInChat(ctx context.Context, chatID int64, userID int64) (bool, error) {
 	queryFormat := `
 		SELECT TRUE
 		FROM %s
@@ -31,8 +30,8 @@ func (r *Repo) IsUserInChat(ctx context.Context, chatID serviceModel.ChatID, use
 	}
 
 	args := pgx.NamedArgs{
-		chatIDColumn: int64(chatID),
-		userIDColumn: int64(userID),
+		chatIDColumn: chatID,
+		userIDColumn: userID,
 	}
 
 	rows, err := r.db.DB().QueryContext(ctx, q, args)

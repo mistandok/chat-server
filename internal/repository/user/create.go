@@ -6,22 +6,17 @@ import (
 	"strings"
 
 	"github.com/mistandok/chat-server/internal/client/db"
-
-	serviceModel "github.com/mistandok/chat-server/internal/model"
-	"github.com/mistandok/chat-server/internal/repository/user/convert"
 )
 
 // CreateMass ..
-func (r *Repo) CreateMass(ctx context.Context, userIDs []serviceModel.UserID) error {
-	repoUserIDs := convert.ToSliceIntFromSliceServiceUserID(userIDs)
-
-	countUsers := len(repoUserIDs)
+func (r *Repo) CreateMass(ctx context.Context, userIDs []int64) error {
+	countUsers := len(userIDs)
 	if countUsers == 0 {
 		return nil
 	}
 
 	var strUserIDs = make([]string, 0, countUsers)
-	for _, userID := range repoUserIDs {
+	for _, userID := range userIDs {
 		strUserIDs = append(strUserIDs, fmt.Sprintf("(%d)", userID))
 	}
 

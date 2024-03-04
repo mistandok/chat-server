@@ -2,6 +2,7 @@ package message
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/mistandok/chat-server/internal/client/db"
@@ -11,7 +12,6 @@ import (
 	serviceModel "github.com/mistandok/chat-server/internal/model"
 	"github.com/mistandok/chat-server/internal/repository"
 	"github.com/mistandok/chat-server/internal/repository/message/convert"
-	"github.com/pkg/errors"
 )
 
 // Create ..

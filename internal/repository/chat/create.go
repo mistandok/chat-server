@@ -7,11 +7,10 @@ import (
 	"github.com/mistandok/chat-server/internal/client/db"
 
 	"github.com/jackc/pgx/v5"
-	serviceModel "github.com/mistandok/chat-server/internal/model"
 )
 
 // Create chat in db
-func (r *Repo) Create(ctx context.Context) (serviceModel.ChatID, error) {
+func (r *Repo) Create(ctx context.Context) (int64, error) {
 	queryFormat := `INSERT INTO %s DEFAULT VALUES RETURNING id`
 	query := fmt.Sprintf(queryFormat, chatTable)
 	q := db.Query{
@@ -30,5 +29,5 @@ func (r *Repo) Create(ctx context.Context) (serviceModel.ChatID, error) {
 		return 0, err
 	}
 
-	return serviceModel.ChatID(chatID), nil
+	return chatID, nil
 }

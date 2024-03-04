@@ -3,12 +3,10 @@ package chat
 import (
 	"context"
 	"fmt"
-
-	"github.com/mistandok/chat-server/internal/model"
 )
 
 // Delete ..
-func (s *Service) Delete(ctx context.Context, chatID model.ChatID) error {
+func (s *Service) Delete(ctx context.Context, chatID int64) error {
 	s.logger.Debug().Msg(fmt.Sprintf("попытка удалить чат: %d", chatID))
 
 	if err := s.chatRepo.Delete(ctx, chatID); err != nil {

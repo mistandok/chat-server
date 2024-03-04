@@ -7,11 +7,10 @@ import (
 	"github.com/mistandok/chat-server/internal/client/db"
 
 	"github.com/jackc/pgx/v5"
-	serviceModel "github.com/mistandok/chat-server/internal/model"
 )
 
 // Delete ..
-func (r *Repo) Delete(ctx context.Context, chatID serviceModel.ChatID) error {
+func (r *Repo) Delete(ctx context.Context, chatID int64) error {
 	queryFormat := `DELETE FROM %s WHERE %s = @%s`
 	query := fmt.Sprintf(queryFormat, chatTable, idColumn, idColumn)
 	q := db.Query{

@@ -3,15 +3,13 @@ package chat
 import (
 	"context"
 	"fmt"
-
-	"github.com/mistandok/chat-server/internal/model"
 )
 
 // Create ..
-func (s *Service) Create(ctx context.Context, userIDs []model.UserID) (model.ChatID, error) {
+func (s *Service) Create(ctx context.Context, userIDs []int64) (int64, error) {
 	s.logger.Debug().Msg("попытка создать чат")
 
-	var chatID model.ChatID
+	var chatID int64
 	var err error
 
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
