@@ -1,12 +1,12 @@
 package env
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/mistandok/chat-server/internal/config"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -39,7 +39,7 @@ func (s *PgCfgSearcher) Get() (*config.PgConfig, error) {
 
 	dbPortInt, err := strconv.Atoi(dbPort)
 	if err != nil {
-		return nil, errors.Errorf("некорректный формат порта: %v", err)
+		return nil, fmt.Errorf("некорректный формат порта: %w", err)
 	}
 
 	dbUser := os.Getenv(user)

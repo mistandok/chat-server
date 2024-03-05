@@ -1,13 +1,13 @@
 package env
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/mistandok/chat-server/internal/config"
 	"github.com/rs/zerolog"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -32,7 +32,7 @@ func (s *LogCfgSearcher) Get() (*config.LogConfig, error) {
 
 	logLevelInt, err := strconv.Atoi(level)
 	if err != nil {
-		return nil, errors.Errorf("некорректное значение уровня логирования: %v", err)
+		return nil, fmt.Errorf("некорректное значение уровня логирования: %w", err)
 	}
 
 	timeFormat := os.Getenv(logTimeFormat)

@@ -1,11 +1,10 @@
 package env
 
 import (
+	"errors"
 	"os"
 
 	"github.com/mistandok/chat-server/internal/config"
-
-	"github.com/pkg/errors"
 )
 
 const (

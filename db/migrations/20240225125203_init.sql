@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS message (
     id BIGSERIAL PRIMARY KEY,
     from_user_id BIGINT NOT NULL,
     chat_id BIGINT NOT NULL,
-    message TEXT NOT NULL,
+    text TEXT NOT NULL,
     sent_at timestamp with time zone NOT NULL,
     CONSTRAINT fk_from_user_id FOREIGN KEY (from_user_id) REFERENCES "user" (id) ON DELETE CASCADE,
     CONSTRAINT fk_chat_id FOREIGN KEY (chat_id) REFERENCES chat (id) ON DELETE CASCADE
