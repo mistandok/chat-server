@@ -1,8 +1,8 @@
 package chat
 
 import (
-	"github.com/mistandok/chat-server/internal/client/db"
 	"github.com/mistandok/chat-server/internal/repository"
+	"github.com/mistandok/platform_common/pkg/db"
 	"github.com/rs/zerolog"
 )
 
