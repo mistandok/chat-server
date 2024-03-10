@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mistandok/chat-server/internal/service"
+
 	impl "github.com/mistandok/chat-server/internal/api/chat"
 	"github.com/mistandok/chat-server/internal/model"
 	"github.com/mistandok/chat-server/internal/repository"
@@ -68,6 +70,13 @@ func TestSendMessage_FailSendMessage(t *testing.T) {
 		},
 		{
 			name:              "fail send message because user not in the chat",
+			sendRequest:       request,
+			message:           *message,
+			internalError:     service.ErrMsgUserNotInTheChat,
+			expectedErrorCode: codes.InvalidArgument,
+		},
+		{
+			name:              "fail send message because internal error",
 			sendRequest:       request,
 			message:           *message,
 			internalError:     internalBadError,
