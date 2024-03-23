@@ -13,5 +13,5 @@ func (i *Implementation) Create(ctx context.Context, request *chat_v1.CreateRequ
 		return nil, errInternal
 	}
 
-	return &chat_v1.CreateResponse{Id: int64(chatID)}, nil
+	return &chat_v1.CreateResponse{Id: chatID}, nil
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mistandok/chat-server/internal/client/db"
+	"github.com/mistandok/platform_common/pkg/db"
 )
 
 // CreateMass ..

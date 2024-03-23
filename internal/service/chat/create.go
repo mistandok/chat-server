@@ -10,9 +10,8 @@ func (s *Service) Create(ctx context.Context, userIDs []int64) (int64, error) {
 	s.logger.Debug().Msg("попытка создать чат")
 
 	var chatID int64
-	var err error
 
-	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var txErr error
 		chatID, txErr = s.chatRepo.Create(ctx)
 		if txErr != nil {
@@ -21,7 +20,7 @@ func (s *Service) Create(ctx context.Context, userIDs []int64) (int64, error) {
 		}
 
 		txErr = s.userRepo.CreateMass(ctx, userIDs)
-		if err != nil {
+		if txErr != nil {
 			s.logger.Err(txErr).Msg("не удалось создать пользователей")
 			return fmt.Errorf("ошибка при попытке создания пользователей: %w", txErr)
 		}

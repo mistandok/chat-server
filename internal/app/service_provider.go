@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/mistandok/chat-server/internal/client/db"
-	"github.com/mistandok/chat-server/internal/client/db/pg"
+	"github.com/mistandok/platform_common/pkg/closer"
+	"github.com/mistandok/platform_common/pkg/db"
+	"github.com/mistandok/platform_common/pkg/db/pg"
 
 	"github.com/mistandok/chat-server/internal/api/chat"
-	"github.com/mistandok/chat-server/internal/closer"
 	"github.com/mistandok/chat-server/internal/config"
 	"github.com/mistandok/chat-server/internal/config/env"
 	"github.com/mistandok/chat-server/internal/repository"
