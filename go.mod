@@ -3,6 +3,7 @@ module github.com/mistandok/chat-server
 go 1.21.3
 
 require (
+	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
 	github.com/jackc/pgx/v5 v5.5.4
 	github.com/joho/godotenv v1.5.1

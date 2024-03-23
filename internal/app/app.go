@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/mistandok/chat-server/internal/interceptor"
 	"log"
 	"net"
 	"net/http"
@@ -102,7 +103,10 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	a.grpcServer = grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+	)
 
 	reflection.Register(a.grpcServer)
 
