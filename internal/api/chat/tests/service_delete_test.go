@@ -12,7 +12,7 @@ import (
 )
 
 func TestDelete_SuccessDeleteChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var chatID int64 = 1
 	request := &chat_v1.DeleteRequest{Id: chatID}
 
@@ -26,7 +26,7 @@ func TestDelete_SuccessDeleteChat(t *testing.T) {
 }
 
 func TestDelete_FailDeleteChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var chatID int64 = 1
 	request := &chat_v1.DeleteRequest{Id: chatID}
 	deleteErr := errors.New("some err")

@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreate_SuccessDeleteChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 	var chatID int64 = 1
 
@@ -32,7 +32,7 @@ func TestCreate_SuccessDeleteChat(t *testing.T) {
 }
 
 func TestCreate_FailDeleteChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 	var chatID int64 = 1
 	deleteError := errors.New("some error")

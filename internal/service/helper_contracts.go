@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-//go:generate ../../bin/mockery --output ./mocks  --inpackage-suffix --all
+//go:generate ../../bin/mockery --output ./mocks  --inpackage-suffix --all --case snake
 
 // TxFaker интерфейс необходим для корректного тестирования транзакций.
 type TxFaker interface {

@@ -12,7 +12,7 @@ import (
 )
 
 func TestCreate_SuccessCreateChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var chatID int64 = 1
 	var userIDs = []int64{1, 2, 3}
 	request := &chat_v1.CreateRequest{UserIDs: userIDs}
@@ -28,7 +28,7 @@ func TestCreate_SuccessCreateChat(t *testing.T) {
 }
 
 func TestCreate_FailCreateChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var userIDs = []int64{1, 2, 3}
 	request := &chat_v1.CreateRequest{UserIDs: userIDs}
 	someErr := errors.New("some err")

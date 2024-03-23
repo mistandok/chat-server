@@ -11,6 +11,8 @@ import (
 )
 
 func txFakerAndCtxWithSetup(ctx context.Context, t *testing.T, successTx bool) (*mocks.TxFaker, context.Context) {
+	t.Helper()
+
 	txFaker := mocks.NewTxFaker(t)
 	ctxWithTx := pg.MakeContextTx(ctx, txFaker)
 
@@ -24,6 +26,8 @@ func txFakerAndCtxWithSetup(ctx context.Context, t *testing.T, successTx bool) (
 }
 
 func transactorWithSetup(ctx context.Context, t *testing.T, faker *mocks.TxFaker) *dbMocks.Transactor {
+	t.Helper()
+
 	txOpts := pgx.TxOptions{IsoLevel: pgx.ReadCommitted}
 	transactorMock := dbMocks.NewTransactor(t)
 	transactorMock.On("BeginTx", ctx, txOpts).Return(faker, nil).Once()

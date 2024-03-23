@@ -16,7 +16,7 @@ import (
 )
 
 func TestCreate_SuccessSendMessage(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 
 	message := model.Message{
@@ -43,7 +43,7 @@ func TestCreate_SuccessSendMessage(t *testing.T) {
 }
 
 func TestCreate_FailSendMessageUserNotInTheChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 
 	message := model.Message{
@@ -69,7 +69,7 @@ func TestCreate_FailSendMessageUserNotInTheChat(t *testing.T) {
 }
 
 func TestCreate_FailSendMessageErrorInTimeCheckUserInTheChat(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 	checkErr := errors.New("some error")
 
@@ -95,7 +95,7 @@ func TestCreate_FailSendMessageErrorInTimeCheckUserInTheChat(t *testing.T) {
 }
 
 func TestCreate_FailSendMessageErrorInTimeSaveMessage(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	logger := zerolog.Nop()
 	saveErr := errors.New("some error")
 

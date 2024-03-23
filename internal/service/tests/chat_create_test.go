@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreate_SuccessCreateChat(t *testing.T) {
-	startCtx := context.TODO()
+	startCtx := context.Background()
 	logger := zerolog.Nop()
 	var chatID int64 = 1
 	var userIDs = []int64{1, 2, 3}
@@ -39,7 +39,7 @@ func TestCreate_SuccessCreateChat(t *testing.T) {
 }
 
 func TestCreate_FailCreateChat(t *testing.T) {
-	startCtx := context.TODO()
+	startCtx := context.Background()
 	logger := zerolog.Nop()
 	var userIDs = []int64{1, 2, 3}
 	chatError := errors.New("some error")
@@ -61,7 +61,7 @@ func TestCreate_FailCreateChat(t *testing.T) {
 }
 
 func TestCreate_FailCreateUsers(t *testing.T) {
-	startCtx := context.TODO()
+	startCtx := context.Background()
 	logger := zerolog.Nop()
 	var chatID int64 = 1
 	var userIDs = []int64{1, 2, 3}
@@ -86,7 +86,7 @@ func TestCreate_FailCreateUsers(t *testing.T) {
 }
 
 func TestCreate_FailLinkChatAndUsers(t *testing.T) {
-	startCtx := context.TODO()
+	startCtx := context.Background()
 	logger := zerolog.Nop()
 	var chatID int64 = 1
 	var userIDs = []int64{1, 2, 3}

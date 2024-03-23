@@ -19,7 +19,7 @@ import (
 )
 
 func TestSendMessage_SuccessSendMessage(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var userID int64 = 1
 	var chatID int64 = 1
 	curTime := time.Now().UTC()
@@ -37,7 +37,7 @@ func TestSendMessage_SuccessSendMessage(t *testing.T) {
 }
 
 func TestSendMessage_FailSendMessage(t *testing.T) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	var userID int64 = 1
 	var chatID int64 = 1
 	curTime := time.Now().UTC()
