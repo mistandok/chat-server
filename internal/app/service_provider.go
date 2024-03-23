@@ -24,6 +24,7 @@ import (
 type serviceProvider struct {
 	pgConfig   *config.PgConfig
 	grpcConfig *config.GRPCConfig
+	httpConfig *config.HTTPConfig
 	logger     *zerolog.Logger
 
 	dbClient  db.Client
@@ -63,13 +64,28 @@ func (s *serviceProvider) GRPCConfig() *config.GRPCConfig {
 		cfgSearcher := env.NewGRPCCfgSearcher()
 		cfg, err := cfgSearcher.Get()
 		if err != nil {
-			log.Fatalf("не удалось получить pg config: %s", err.Error())
+			log.Fatalf("не удалось получить grpc config: %s", err.Error())
 		}
 
 		s.grpcConfig = cfg
 	}
 
 	return s.grpcConfig
+}
+
+// HTTPConfig ..
+func (s *serviceProvider) HTTPConfig() *config.HTTPConfig {
+	if s.httpConfig == nil {
+		cfgSearcher := env.NewHTTPCfgSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить http config: %s", err.Error())
+		}
+
+		s.httpConfig = cfg
+	}
+
+	return s.httpConfig
 }
 
 // Logger ..
