@@ -22,10 +22,11 @@ import (
 )
 
 type serviceProvider struct {
-	pgConfig   *config.PgConfig
-	grpcConfig *config.GRPCConfig
-	httpConfig *config.HTTPConfig
-	logger     *zerolog.Logger
+	pgConfig      *config.PgConfig
+	grpcConfig    *config.GRPCConfig
+	httpConfig    *config.HTTPConfig
+	swaggerConfig *config.SwaggerConfig
+	logger        *zerolog.Logger
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -86,6 +87,21 @@ func (s *serviceProvider) HTTPConfig() *config.HTTPConfig {
 	}
 
 	return s.httpConfig
+}
+
+// SwaggerConfig ..
+func (s *serviceProvider) SwaggerConfig() *config.SwaggerConfig {
+	if s.swaggerConfig == nil {
+		cfgSearcher := env.NewSwaggerConfigSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить swagger config: %s", err.Error())
+		}
+
+		s.swaggerConfig = cfg
+	}
+
+	return s.swaggerConfig
 }
 
 // Logger ..

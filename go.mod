@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.4
 	github.com/joho/godotenv v1.5.1
 	github.com/mistandok/platform_common v0.0.0-20240309142600-efa33154bdac
+	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.10.1
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.8.1
