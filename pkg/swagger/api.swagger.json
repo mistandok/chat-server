@@ -57,9 +57,7 @@
         "tags": [
           "ChatV1"
         ]
-      }
-    },
-    "/chat/v1/create": {
+      },
       "post": {
         "summary": "Создает новый чат с указанными пользователями",
         "operationId": "ChatV1_Create",
@@ -92,7 +90,7 @@
         ]
       }
     },
-    "/chat/v1/send_message": {
+    "/chat/v1/send-message": {
       "post": {
         "summary": "Отправляет сообщение от пользователя в указанный чат",
         "operationId": "ChatV1_SendMessage",

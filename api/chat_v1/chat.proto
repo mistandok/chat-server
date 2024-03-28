@@ -31,7 +31,7 @@ service ChatV1 {
   // Создает новый чат с указанными пользователями
   rpc Create(CreateRequest) returns (CreateResponse){
     option (google.api.http) = {
-      post: "/chat/v1/create"
+      post: "/chat/v1"
       body: "*"
     };
   }
@@ -46,7 +46,7 @@ service ChatV1 {
   // Отправляет сообщение от пользователя в указанный чат
   rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty){
     option (google.api.http) = {
-      post: "/chat/v1/send_message"
+      post: "/chat/v1/send-message"
       body: "*"
     };
   }
