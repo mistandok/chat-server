@@ -26,6 +26,7 @@ type serviceProvider struct {
 	grpcConfig    *config.GRPCConfig
 	httpConfig    *config.HTTPConfig
 	swaggerConfig *config.SwaggerConfig
+	authConfig    *config.AuthConfig
 	logger        *zerolog.Logger
 
 	dbClient  db.Client
@@ -102,6 +103,21 @@ func (s *serviceProvider) SwaggerConfig() *config.SwaggerConfig {
 	}
 
 	return s.swaggerConfig
+}
+
+// AuthConfig ..
+func (s *serviceProvider) AuthConfig() *config.AuthConfig {
+	if s.authConfig == nil {
+		cfgSearcher := env.NewAuthCfgSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить auth config: %s", err.Error())
+		}
+
+		s.authConfig = cfg
+	}
+
+	return s.authConfig
 }
 
 // Logger ..
