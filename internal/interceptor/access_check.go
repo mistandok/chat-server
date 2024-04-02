@@ -29,7 +29,7 @@ func (a *AccessCheckInterceptor) Get(ctx context.Context, req interface{}, serve
 	a.logger.Debug().Msg("AccessCheckInterceptor: попытка достать access token из ctx")
 	ctx, err := utils.RotateBearerAuthFromIncomingToOutgoingCtx(ctx)
 	if err != nil {
-		a.logger.Error().Err(err)
+		a.logger.Error().Err(err).Msg("не удалось преобразовать auth в исходящий контекст")
 		return nil, err
 	}
 
