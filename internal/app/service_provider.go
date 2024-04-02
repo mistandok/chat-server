@@ -2,14 +2,15 @@ package app
 
 import (
 	"context"
+	"log"
+	"os"
+
 	"github.com/mistandok/chat-server/internal/client"
 	"github.com/mistandok/chat-server/internal/client/access"
 	"github.com/mistandok/chat-server/internal/interceptor"
 	"github.com/mistandok/chat-server/pkg/auth_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"os"
 
 	"github.com/mistandok/platform_common/pkg/closer"
 	"github.com/mistandok/platform_common/pkg/db"

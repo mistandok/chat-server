@@ -3,6 +3,7 @@ package interceptor
 import (
 	"context"
 	"errors"
+
 	"github.com/mistandok/chat-server/internal/client"
 	"github.com/mistandok/chat-server/internal/utils"
 	"github.com/rs/zerolog"
@@ -15,6 +16,7 @@ type AccessCheckInterceptor struct {
 	accessClientFacade client.AccessClient
 }
 
+// NewAccessCheckInterceptor ..
 func NewAccessCheckInterceptor(logger *zerolog.Logger, accessClientFacade client.AccessClient) *AccessCheckInterceptor {
 	return &AccessCheckInterceptor{
 		logger:             logger,

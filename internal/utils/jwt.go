@@ -3,10 +3,12 @@ package utils
 import (
 	"context"
 	"errors"
-	"google.golang.org/grpc/metadata"
 	"strings"
+
+	"google.golang.org/grpc/metadata"
 )
 
+// RotateBearerAuthFromIncomingToOutgoingCtx переменещие auth данных из входящего в исходящий контекст
 func RotateBearerAuthFromIncomingToOutgoingCtx(ctx context.Context) (context.Context, error) {
 	incomingMd, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

@@ -3,6 +3,7 @@ package access
 import (
 	"context"
 	"fmt"
+
 	"github.com/mistandok/chat-server/internal/client"
 	"github.com/mistandok/chat-server/pkg/auth_v1"
 	"github.com/rs/zerolog"
