@@ -69,7 +69,9 @@ generate-chat-api:
 	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway \
 	--validate_out lang=go:pkg/chat_v1 --validate_opt=paths=source_relative \
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate \
-	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+	--openapiv2_out pkg/swagger \
+	--openapiv2_opt allow_merge=true \
+	--openapiv2_opt merge_file_name=chat_api \
 	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
 	api/chat_v1/chat.proto
 
@@ -85,7 +87,9 @@ generate-auth-api:
 	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway \
 	--validate_out lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate \
-	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+	--openapiv2_out pkg/swagger \
+	--openapiv2_opt allow_merge=true \
+	--openapiv2_opt merge_file_name=auth_api \
 	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
 	api/auth_v1/auth.proto
 

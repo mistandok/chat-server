@@ -37,7 +37,7 @@ func NewAccessV1Client(cc grpc.ClientConnInterface) AccessV1Client {
 
 func (c *accessV1Client) Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/access_v1.AccessV1/Check", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/auth_v1.AccessV1/Check", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func _AccessV1_Check_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/access_v1.AccessV1/Check",
+		FullMethod: "/auth_v1.AccessV1/Check",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccessV1Server).Check(ctx, req.(*CheckRequest))
@@ -95,7 +95,7 @@ func _AccessV1_Check_Handler(srv interface{}, ctx context.Context, dec func(inte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccessV1_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "access_v1.AccessV1",
+	ServiceName: "auth_v1.AccessV1",
 	HandlerType: (*AccessV1Server)(nil),
 	Methods: []grpc.MethodDesc{
 		{

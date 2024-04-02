@@ -81,7 +81,7 @@ func RegisterAccessV1HandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/access_v1.AccessV1/Check", runtime.WithHTTPPathPattern("/access/v1"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/auth_v1.AccessV1/Check", runtime.WithHTTPPathPattern("/access/v1"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -145,7 +145,7 @@ func RegisterAccessV1HandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/access_v1.AccessV1/Check", runtime.WithHTTPPathPattern("/access/v1"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/auth_v1.AccessV1/Check", runtime.WithHTTPPathPattern("/access/v1"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

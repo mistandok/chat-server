@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package access_v1;
+package auth_v1;
 
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
