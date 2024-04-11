@@ -31,6 +31,7 @@ func (a *ClientFacade) Check(ctx context.Context, address string) bool {
 	_, err := a.client.Check(ctx, &auth_v1.CheckRequest{Address: address})
 	if err != nil {
 		a.logger.Warn().Err(err).Msg("ошибка при запросе доступа")
+		return false
 	}
-	return err == nil
+	return true
 }
