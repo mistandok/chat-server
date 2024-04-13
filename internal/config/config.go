@@ -33,6 +33,11 @@ type SwaggerConfigSearcher interface {
 	Get() (*SwaggerConfig, error)
 }
 
+// AuthConfigSearcher interface for search grpc config
+type AuthConfigSearcher interface {
+	Get() (*GRPCConfig, error)
+}
+
 // Load dotenv from path to env
 func Load(path string) error {
 	err := godotenv.Load(path)
@@ -96,5 +101,16 @@ type SwaggerConfig struct {
 
 // Address get address from config
 func (cfg *SwaggerConfig) Address() string {
+	return net.JoinHostPort(cfg.Host, cfg.Port)
+}
+
+// AuthConfig grpc config.
+type AuthConfig struct {
+	Host string
+	Port string
+}
+
+// Address get address from config
+func (cfg *AuthConfig) Address() string {
 	return net.JoinHostPort(cfg.Host, cfg.Port)
 }

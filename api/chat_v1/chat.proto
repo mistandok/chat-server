@@ -12,13 +12,31 @@ option go_package = "github.com/mistandok/chat-server/pkg/chat_v1;chat_v1";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Note API"
+    title: "Chat API V1"
     version: "1.0.0"
     contact: {
       name: "Anton Artikov"
       email: "arti-anton@yandex.ru"
     };
-  };
+  }
+
+  security_definitions: {
+    security: {
+      key: "bearer"
+      value: {
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization"
+        description: "Authentication token, prefixed by Bearer: Bearer <token>"
+      }
+    }
+  }
+
+  security: {
+    security_requirement: {
+      key: "bearer"
+    }
+  }
 
   host: "localhost:8051",
   schemes: HTTP,

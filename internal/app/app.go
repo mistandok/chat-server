@@ -121,7 +121,10 @@ func (a *App) initServiceProvider(_ context.Context) error {
 func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+		grpc.ChainUnaryInterceptor(
+			interceptor.ValidateInterceptor,
+			a.serviceProvider.AccessCheckInterceptor(ctx).Get,
+		),
 	)
 
 	reflection.Register(a.grpcServer)
@@ -167,7 +170,8 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.StripPrefix("/", http.FileServer(statikFs)))
-	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
+	mux.HandleFunc("/chat_api.swagger.json", serveSwaggerFile("/chat_api.swagger.json"))
+	mux.HandleFunc("/auth_api.swagger.json", serveSwaggerFile("/auth_api.swagger.json"))
 
 	a.swaggerServer = &http.Server{
 		Addr:              a.serviceProvider.SwaggerConfig().Address(),

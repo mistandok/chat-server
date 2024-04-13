@@ -5,6 +5,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/mistandok/chat-server/internal/client"
+	"github.com/mistandok/chat-server/internal/client/access"
+	"github.com/mistandok/chat-server/internal/interceptor"
+	"github.com/mistandok/chat-server/pkg/auth_v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/mistandok/platform_common/pkg/closer"
 	"github.com/mistandok/platform_common/pkg/db"
 	"github.com/mistandok/platform_common/pkg/db/pg"
@@ -22,11 +29,15 @@ import (
 )
 
 type serviceProvider struct {
-	pgConfig      *config.PgConfig
-	grpcConfig    *config.GRPCConfig
-	httpConfig    *config.HTTPConfig
-	swaggerConfig *config.SwaggerConfig
-	logger        *zerolog.Logger
+	pgConfig               *config.PgConfig
+	grpcConfig             *config.GRPCConfig
+	httpConfig             *config.HTTPConfig
+	swaggerConfig          *config.SwaggerConfig
+	authConfig             *config.AuthConfig
+	logger                 *zerolog.Logger
+	accessClient           auth_v1.AccessV1Client
+	accessClientFacade     client.AccessClient
+	accessCheckInterceptor *interceptor.AccessCheckInterceptor
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -102,6 +113,21 @@ func (s *serviceProvider) SwaggerConfig() *config.SwaggerConfig {
 	}
 
 	return s.swaggerConfig
+}
+
+// AuthConfig ..
+func (s *serviceProvider) AuthConfig() *config.AuthConfig {
+	if s.authConfig == nil {
+		cfgSearcher := env.NewAuthCfgSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить auth config: %s", err.Error())
+		}
+
+		s.authConfig = cfg
+	}
+
+	return s.authConfig
 }
 
 // Logger ..
@@ -197,6 +223,39 @@ func (s *serviceProvider) ChatImpl(ctx context.Context) *chat.Implementation {
 	}
 
 	return s.chatImpl
+}
+
+func (s *serviceProvider) AccessV1Client(_ context.Context) auth_v1.AccessV1Client {
+	if s.accessClient == nil {
+		cfg := s.AuthConfig()
+		conn, err := grpc.Dial(
+			cfg.Address(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		if err != nil {
+			log.Fatalf("ошибка при установлении соединения с auth-сервисом: %v", err)
+		}
+
+		s.accessClient = auth_v1.NewAccessV1Client(conn)
+	}
+
+	return s.accessClient
+}
+
+func (s *serviceProvider) AccessClientFacade(ctx context.Context) client.AccessClient {
+	if s.accessClientFacade == nil {
+		s.accessClientFacade = access.NewClientFacade(s.Logger(), s.AccessV1Client(ctx))
+	}
+
+	return s.accessClientFacade
+}
+
+func (s *serviceProvider) AccessCheckInterceptor(ctx context.Context) *interceptor.AccessCheckInterceptor {
+	if s.accessCheckInterceptor == nil {
+		s.accessCheckInterceptor = interceptor.NewAccessCheckInterceptor(s.Logger(), s.AccessClientFacade(ctx))
+	}
+
+	return s.accessCheckInterceptor
 }
 
 func setupZeroLog(logConfig *config.LogConfig) *zerolog.Logger {

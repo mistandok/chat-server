@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Note API",
+    "title": "Chat API V1",
     "version": "1.0.0",
     "contact": {
       "name": "Anton Artikov",
@@ -201,5 +201,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "bearer": {
+      "type": "apiKey",
+      "description": "Authentication token, prefixed by Bearer: Bearer \u003ctoken\u003e",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
 }
