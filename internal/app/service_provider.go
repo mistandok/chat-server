@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/opentracing/opentracing-go"
+
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/mistandok/chat-server/internal/client"
 	"github.com/mistandok/chat-server/internal/client/access"
 	"github.com/mistandok/chat-server/internal/interceptor"
@@ -247,6 +250,7 @@ func (s *serviceProvider) AccessV1Client(_ context.Context) auth_v1.AccessV1Clie
 		conn, err := grpc.Dial(
 			cfg.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
 		)
 		if err != nil {
 			log.Fatalf("ошибка при установлении соединения с auth-сервисом: %v", err)

@@ -9,8 +9,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/opentracing/opentracing-go"
+
 	"github.com/mistandok/chat-server/internal/metric"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	jaegerConfig "github.com/uber/jaeger-client-go/config"
 
 	"github.com/mistandok/chat-server/internal/interceptor"
 
@@ -25,6 +29,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
+)
+
+const (
+	serviceName = "chat"
 )
 
 // App ..
@@ -88,6 +96,7 @@ func (a *App) Run() error {
 func (a *App) initDeps(ctx context.Context) error {
 	initDepFunctions := []func(context.Context) error{
 		a.initConfig,
+		a.initGlobalTracer,
 		a.initServiceProvider,
 		a.initGRPCServer,
 		a.initHTTPServer,
@@ -123,6 +132,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
 		grpc.ChainUnaryInterceptor(
+			otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer()),
+			interceptor.ServerTracingInterceptor,
 			interceptor.MetricsInterceptor,
 			interceptor.ValidateInterceptor,
 			a.serviceProvider.AccessCheckInterceptor(ctx).Get,
@@ -204,6 +215,18 @@ func (a *App) initPrometheusServer(_ context.Context) error {
 	}
 
 	return nil
+}
+
+func (a *App) initGlobalTracer(_ context.Context) error {
+	cfg := jaegerConfig.Configuration{
+		Sampler: &jaegerConfig.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+	}
+
+	_, err := cfg.InitGlobalTracer(serviceName)
+	return err
 }
 
 func (a *App) runGRPCServer() error {
