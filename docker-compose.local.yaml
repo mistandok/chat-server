@@ -2,6 +2,8 @@ version: '3'
 
 volumes:
   chat_postgres_volume:
+  prometheus_volume:
+  grafana_volume:
 
 services:
   storage:
@@ -23,3 +25,19 @@ services:
       - storage
     environment:
       PG_HOST: storage
+
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_volume:/prometheus
+
+  grafana:
+    image: grafana/grafana-oss:10.0.3
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - grafana_volume:/var/lib/grafana

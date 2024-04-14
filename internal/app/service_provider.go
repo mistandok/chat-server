@@ -34,6 +34,7 @@ type serviceProvider struct {
 	httpConfig             *config.HTTPConfig
 	swaggerConfig          *config.SwaggerConfig
 	authConfig             *config.AuthConfig
+	prometheusConfig       *config.PrometheusConfig
 	logger                 *zerolog.Logger
 	accessClient           auth_v1.AccessV1Client
 	accessClientFacade     client.AccessClient
@@ -128,6 +129,21 @@ func (s *serviceProvider) AuthConfig() *config.AuthConfig {
 	}
 
 	return s.authConfig
+}
+
+// PrometheusConfig ..
+func (s *serviceProvider) PrometheusConfig() *config.PrometheusConfig {
+	if s.prometheusConfig == nil {
+		cfgSearcher := env.NewPrometheusCfgSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить prometheus config: %s", err.Error())
+		}
+
+		s.prometheusConfig = cfg
+	}
+
+	return s.prometheusConfig
 }
 
 // Logger ..
