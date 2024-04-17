@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/opentracing/opentracing-go"
+
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/mistandok/chat-server/internal/client"
 	"github.com/mistandok/chat-server/internal/client/access"
 	"github.com/mistandok/chat-server/internal/interceptor"
@@ -34,6 +37,7 @@ type serviceProvider struct {
 	httpConfig             *config.HTTPConfig
 	swaggerConfig          *config.SwaggerConfig
 	authConfig             *config.AuthConfig
+	prometheusConfig       *config.PrometheusConfig
 	logger                 *zerolog.Logger
 	accessClient           auth_v1.AccessV1Client
 	accessClientFacade     client.AccessClient
@@ -128,6 +132,21 @@ func (s *serviceProvider) AuthConfig() *config.AuthConfig {
 	}
 
 	return s.authConfig
+}
+
+// PrometheusConfig ..
+func (s *serviceProvider) PrometheusConfig() *config.PrometheusConfig {
+	if s.prometheusConfig == nil {
+		cfgSearcher := env.NewPrometheusCfgSearcher()
+		cfg, err := cfgSearcher.Get()
+		if err != nil {
+			log.Fatalf("не удалось получить prometheus config: %s", err.Error())
+		}
+
+		s.prometheusConfig = cfg
+	}
+
+	return s.prometheusConfig
 }
 
 // Logger ..
@@ -231,6 +250,7 @@ func (s *serviceProvider) AccessV1Client(_ context.Context) auth_v1.AccessV1Clie
 		conn, err := grpc.Dial(
 			cfg.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
 		)
 		if err != nil {
 			log.Fatalf("ошибка при установлении соединения с auth-сервисом: %v", err)

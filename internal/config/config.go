@@ -114,3 +114,21 @@ type AuthConfig struct {
 func (cfg *AuthConfig) Address() string {
 	return net.JoinHostPort(cfg.Host, cfg.Port)
 }
+
+// PrometheusConfig config for Prometheus
+type PrometheusConfig struct {
+	PublicHost string
+	PublicPort string
+	Host       string
+	Port       string
+}
+
+// Address get address from config
+func (cfg *PrometheusConfig) Address() string {
+	return net.JoinHostPort(cfg.Host, cfg.Port)
+}
+
+// PublicAddress get address from config
+func (cfg *PrometheusConfig) PublicAddress() string {
+	return net.JoinHostPort(cfg.PublicHost, cfg.PublicPort)
+}
