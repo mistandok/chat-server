@@ -8,9 +8,10 @@ import (
 // ToMessageFromServiceMessage ..
 func ToMessageFromServiceMessage(message *serviceModel.Message) *model.Message {
 	return &model.Message{
-		FromUserID: int64(message.FromUserID),
-		Text:       message.Text,
-		ToChatID:   int64(message.ToChatID),
-		SendTime:   message.SendTime,
+		FromUserID:   message.FromUserID,
+		FromUserName: message.FromUserName,
+		Text:         message.Text,
+		ToChatID:     message.ToChatID,
+		SendTime:     message.SendTime,
 	}
 }

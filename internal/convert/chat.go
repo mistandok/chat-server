@@ -8,9 +8,10 @@ import (
 // ToMessageFromDesc ..
 func ToMessageFromDesc(request *desc.SendMessageRequest) *model.Message {
 	return &model.Message{
-		FromUserID: request.From,
-		Text:       request.Text,
-		ToChatID:   request.ToChatId,
-		SendTime:   request.Timestamp.AsTime(),
+		FromUserID:   request.Message.FromUserID,
+		FromUserName: request.Message.FromUserName,
+		Text:         request.Message.Text,
+		ToChatID:     request.ToChatId,
+		SendTime:     request.Message.CreatedAt.AsTime(),
 	}
 }
