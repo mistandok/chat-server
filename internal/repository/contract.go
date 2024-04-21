@@ -12,7 +12,7 @@ import (
 type ChatRepository interface {
 	Create(ctx context.Context) (int64, error)
 	Delete(ctx context.Context, chatID int64) error
-	IsUserInChat(context.Context, int64, int64) (bool, error)
+	IsUserInChat(ctx context.Context, chatID int64, userID int64) (bool, error)
 	LinkChatAndUsers(context.Context, int64, []int64) error
 }
 

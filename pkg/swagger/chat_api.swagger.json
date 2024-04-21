@@ -172,14 +172,18 @@
       "type": "object",
       "properties": {
         "chatId": {
-          "type": "string"
-        },
-        "userID": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Идентификатор чата"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор пользователя"
         },
         "userName": {
-          "type": "string"
+          "type": "string",
+          "title": "Имя пользователя"
         }
       }
     },
@@ -209,19 +213,23 @@
     "chat_v1Message": {
       "type": "object",
       "properties": {
-        "fromUserID": {
+        "fromUserId": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Идентификатор пользователя"
         },
         "fromUserName": {
-          "type": "string"
+          "type": "string",
+          "title": "Имя пользователя"
         },
         "text": {
-          "type": "string"
+          "type": "string",
+          "title": "Текст сообщения"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "title": "Время отправки"
         }
       }
     },

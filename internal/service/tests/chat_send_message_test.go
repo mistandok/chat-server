@@ -65,7 +65,7 @@ func TestCreate_FailSendMessageUserNotInTheChat(t *testing.T) {
 	err := service.SendMessage(ctx, message)
 
 	require.Error(t, err)
-	require.ErrorIs(t, chatService.ErrMsgUserNotInTheChat, err)
+	require.ErrorIs(t, chatService.ErrUserNotInTheChat, err)
 }
 
 func TestCreate_FailSendMessageErrorInTimeCheckUserInTheChat(t *testing.T) {

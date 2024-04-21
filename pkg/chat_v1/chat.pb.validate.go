@@ -542,9 +542,9 @@ func (m *Message) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetFromUserID() <= 0 {
+	if m.GetFromUserId() <= 0 {
 		err := MessageValidationError{
-			field:  "FromUserID",
+			field:  "FromUserId",
 			reason: "value must be greater than 0",
 		}
 		if !all {
@@ -705,7 +705,7 @@ func (m *ConnectChatRequest) validate(all bool) error {
 
 	// no validation rules for ChatId
 
-	// no validation rules for UserID
+	// no validation rules for UserId
 
 	// no validation rules for UserName
 

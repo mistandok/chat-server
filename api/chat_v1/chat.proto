@@ -101,14 +101,21 @@ message SendMessageRequest {
 }
 
 message Message {
-  int64 fromUserID = 1 [(validate.rules).int64.gt = 0];
-  string fromUserName = 2 [(validate.rules).string = {min_len: 1, max_len: 200}];
+  // Идентификатор пользователя
+  int64 from_user_id = 1 [(validate.rules).int64.gt = 0];
+  // Имя пользователя
+  string from_user_name = 2 [(validate.rules).string = {min_len: 1, max_len: 200}];
+  // Текст сообщения
   string text = 3 [(validate.rules).string = {min_len: 1, max_len: 2000}];
+  // Время отправки
   google.protobuf.Timestamp created_at = 4;
 }
 
 message ConnectChatRequest {
-  string chat_id = 1;
-  int64 userID = 2;
-  string userName = 3;
+  // Идентификатор чата
+  int64 chat_id = 1;
+  // Идентификатор пользователя
+  int64 user_id = 2;
+  // Имя пользователя
+  string user_name = 3;
 }

@@ -72,7 +72,7 @@ func TestSendMessage_FailSendMessage(t *testing.T) {
 			name:              "fail send message because user not in the chat",
 			sendRequest:       request,
 			message:           *message,
-			internalError:     service.ErrMsgUserNotInTheChat,
+			internalError:     service.ErrUserNotInTheChat,
 			expectedErrorCode: codes.InvalidArgument,
 		},
 		{

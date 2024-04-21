@@ -1,8 +1,9 @@
 package tests
 
 import (
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/mistandok/chat-server/internal/model"
 	"github.com/mistandok/chat-server/pkg/chat_v1"
@@ -11,7 +12,7 @@ import (
 func sendMessageRequestWithSetup(fromUserID int64, toChatID int64, onTime time.Time) *chat_v1.SendMessageRequest {
 	return &chat_v1.SendMessageRequest{
 		Message: &chat_v1.Message{
-			FromUserID: fromUserID,
+			FromUserId: fromUserID,
 			Text:       "msg",
 			CreatedAt:  timestamppb.New(onTime),
 		},
