@@ -34,11 +34,13 @@ func (c *ChatsMessageChannel) GetChannelForChat(chatID model.ChatID) (chan *mode
 }
 
 // InitMsgChannelForChat ..
-func (c *ChatsMessageChannel) InitMsgChannelForChat(chatID model.ChatID, bufferSize int) {
+func (c *ChatsMessageChannel) InitMsgChannelForChat(chatID model.ChatID, bufferSize int) chan *model.Message {
 	c.rwMutex.Lock()
 	defer c.rwMutex.Unlock()
 
-	c.channels[chatID] = make(chan *model.Message, bufferSize)
+	channel := make(chan *model.Message, bufferSize)
+	c.channels[chatID] = channel
+	return channel
 }
 
 // SendMessageToChannelForChat ..

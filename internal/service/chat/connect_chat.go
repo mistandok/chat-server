@@ -32,8 +32,7 @@ func (s *Service) ConnectChat(in *model.ConnectChatIn, stream service.StreamChat
 
 	chatMessageChannel, ok := s.chatsMessageChannel.GetChannelForChat(chatID)
 	if !ok {
-		s.logger.Err(err).Msg("для чата не найден канал сообщений")
-		return service.ErrChatNotFound
+		chatMessageChannel = s.chatsMessageChannel.InitMsgChannelForChat(chatID, 100)
 	}
 
 	chat := s.chats.GetOrCreateChat(chatID)
@@ -75,10 +74,7 @@ func (s *Service) processingChatChannel(
 				return nil
 			}
 
-			for currentUser, userStream := range chat.GetStreamForUsers() {
-				if currentUser.ID == user.ID {
-					continue
-				}
+			for _, userStream := range chat.GetStreamForUsers() {
 				if err := userStream.Send(message); err != nil {
 					s.logger.Err(err).Msg("не удалось отправить сообщение в user stream")
 					return err
