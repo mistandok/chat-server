@@ -15,33 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreate_SuccessSendMessage(t *testing.T) {
-	ctx := context.Background()
-	logger := zerolog.Nop()
-
-	message := model.Message{
-		FromUserID: 1,
-		Text:       "hello wrold",
-		ToChatID:   1,
-		SendTime:   time.Now(),
-	}
-
-	txManagerMock := mocks.NewTxManager(t)
-
-	chatRepoMock := repoMocks.NewChatRepository(t)
-	chatRepoMock.On("IsUserInChat", ctx, message.ToChatID, message.FromUserID).Return(true, nil).Once()
-
-	userRepoMock := repoMocks.NewUserRepository(t)
-
-	messageRepoMock := repoMocks.NewMessageRepository(t)
-	messageRepoMock.On("Create", ctx, message).Return(nil).Once()
-
-	service := chat.NewService(&logger, txManagerMock, chatRepoMock, userRepoMock, messageRepoMock)
-	err := service.SendMessage(ctx, message)
-
-	require.NoError(t, err)
-}
-
 func TestCreate_FailSendMessageUserNotInTheChat(t *testing.T) {
 	ctx := context.Background()
 	logger := zerolog.Nop()

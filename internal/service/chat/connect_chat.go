@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+
 	"github.com/mistandok/chat-server/internal/model"
 	"github.com/mistandok/chat-server/internal/service"
 	"github.com/mistandok/chat-server/internal/service/chat/stream"
