@@ -19,15 +19,15 @@ func (r *Repo) Create(ctx context.Context, message serviceModel.Message) error {
 	repoMessage := convert.ToMessageFromServiceMessage(&message)
 
 	queryFormat := `
-		INSERT INTO %s (%s, %s, %s, %s)
-		VALUES (@%s, @%s, @%s, @%s)
+		INSERT INTO %s (%s, %s, %s, %s, %s)
+		VALUES (@%s, @%s, @%s, @%s, @%s)
     `
 
 	query := fmt.Sprintf(
 		queryFormat,
 		messageTable,
-		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
-		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn,
+		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn, fromUserNameColumn,
+		fromUserIDColumn, chatIDColumn, textColumn, sentAtColumn, fromUserNameColumn,
 	)
 	q := db.Query{
 		Name:     "message_repository.Create",
@@ -35,10 +35,11 @@ func (r *Repo) Create(ctx context.Context, message serviceModel.Message) error {
 	}
 
 	args := pgx.NamedArgs{
-		fromUserIDColumn: repoMessage.FromUserID,
-		chatIDColumn:     repoMessage.ToChatID,
-		textColumn:       repoMessage.Text,
-		sentAtColumn:     repoMessage.SendTime,
+		fromUserIDColumn:   repoMessage.FromUserID,
+		fromUserNameColumn: repoMessage.FromUserName,
+		chatIDColumn:       repoMessage.ToChatID,
+		textColumn:         repoMessage.Text,
+		sentAtColumn:       repoMessage.SendTime,
 	}
 
 	_, err := r.db.DB().ExecContext(ctx, q, args)

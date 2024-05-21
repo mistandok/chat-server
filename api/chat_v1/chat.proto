@@ -68,6 +68,14 @@ service ChatV1 {
       body: "*"
     };
   }
+
+  // Создает соединение с чатом
+  rpc ConnectChat (ConnectChatRequest) returns (stream Message){
+    option (google.api.http) = {
+      post: "/chat/v1/connect-chat"
+      body: "*"
+    };
+  }
 }
 
 message CreateRequest {
@@ -86,12 +94,28 @@ message DeleteRequest {
 }
 
 message SendMessageRequest {
-  // Идентификатор пользователя, отправляющего сообщение
-  int64 from = 1 [(validate.rules).int64.gt = 0];
-  // Текст сообщения
-  string text = 2 [(validate.rules).string = {min_len: 1, max_len: 2000}];
-  // Время сообщения
-  google.protobuf.Timestamp timestamp = 3;
+  // Сообщение
+  Message message = 1;
   // Идентификатор чата, в который адресовано сообщений
-  int64 toChatId = 4 [(validate.rules).int64.gt = 0];
+  int64 toChatId = 2 [(validate.rules).int64.gt = 0];
+}
+
+message Message {
+  // Идентификатор пользователя
+  int64 from_user_id = 1 [(validate.rules).int64.gt = 0];
+  // Имя пользователя
+  string from_user_name = 2 [(validate.rules).string = {min_len: 1, max_len: 200}];
+  // Текст сообщения
+  string text = 3 [(validate.rules).string = {min_len: 1, max_len: 2000}];
+  // Время отправки
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message ConnectChatRequest {
+  // Идентификатор чата
+  int64 chat_id = 1;
+  // Идентификатор пользователя
+  int64 user_id = 2;
+  // Имя пользователя
+  string user_name = 3;
 }

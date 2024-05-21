@@ -3,6 +3,8 @@ package chat
 import (
 	"context"
 	"fmt"
+
+	"github.com/mistandok/chat-server/internal/model"
 )
 
 // Create ..
@@ -36,6 +38,8 @@ func (s *Service) Create(ctx context.Context, userIDs []int64) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	s.chatsMessageChannel.InitMsgChannelForChat(model.ChatID(chatID), 100)
 
 	return chatID, nil
 }

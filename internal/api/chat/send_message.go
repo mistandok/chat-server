@@ -21,7 +21,7 @@ func (i *Implementation) SendMessage(ctx context.Context, request *chat_v1.SendM
 		switch {
 		case errors.Is(err, repository.ErrChatNotFound) || errors.Is(err, repository.ErrUserNotFound):
 			return nil, status.Error(codes.NotFound, err.Error())
-		case errors.Is(err, service.ErrMsgUserNotInTheChat):
+		case errors.Is(err, service.ErrUserNotInTheChat):
 			return nil, status.Error(codes.InvalidArgument, err.Error())
 		default:
 			return nil, errInternal

@@ -90,6 +90,48 @@
         ]
       }
     },
+    "/chat/v1/connect-chat": {
+      "post": {
+        "summary": "Создает соединение с чатом",
+        "operationId": "ChatV1_ConnectChat",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/chat_v1Message"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of chat_v1Message"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chat_v1ConnectChatRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChatV1"
+        ]
+      }
+    },
     "/chat/v1/send-message": {
       "post": {
         "summary": "Отправляет сообщение от пользователя в указанный чат",
@@ -126,6 +168,25 @@
     }
   },
   "definitions": {
+    "chat_v1ConnectChatRequest": {
+      "type": "object",
+      "properties": {
+        "chatId": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор чата"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор пользователя"
+        },
+        "userName": {
+          "type": "string",
+          "title": "Имя пользователя"
+        }
+      }
+    },
     "chat_v1CreateRequest": {
       "type": "object",
       "properties": {
@@ -149,22 +210,35 @@
         }
       }
     },
-    "chat_v1SendMessageRequest": {
+    "chat_v1Message": {
       "type": "object",
       "properties": {
-        "from": {
+        "fromUserId": {
           "type": "string",
           "format": "int64",
-          "title": "Идентификатор пользователя, отправляющего сообщение"
+          "title": "Идентификатор пользователя"
+        },
+        "fromUserName": {
+          "type": "string",
+          "title": "Имя пользователя"
         },
         "text": {
           "type": "string",
           "title": "Текст сообщения"
         },
-        "timestamp": {
+        "createdAt": {
           "type": "string",
           "format": "date-time",
-          "title": "Время сообщения"
+          "title": "Время отправки"
+        }
+      }
+    },
+    "chat_v1SendMessageRequest": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "$ref": "#/definitions/chat_v1Message",
+          "title": "Сообщение"
         },
         "toChatId": {
           "type": "string",
